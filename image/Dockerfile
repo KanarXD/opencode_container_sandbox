@@ -1,10 +1,17 @@
 ARG DEBIAN_VERSION=13.4
 ARG OPENCODE_VERSION=1.3.3
+ARG JAVA_VERSION=21
 
 FROM debian:${DEBIAN_VERSION}
 
-# Install basic tools
-RUN apt-get update && apt-get install -y npm git curl && apt-get clean
+ARG OPENCODE_VERSION
+ARG JAVA_VERSION
+
+# Install basic tools and configurable Java version
+RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk && apt-get clean
+
+ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64
+ENV PATH=${JAVA_HOME}/bin:${PATH}
 
 # Install OpenCode globally
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
