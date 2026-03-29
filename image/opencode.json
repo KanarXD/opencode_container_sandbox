@@ -1,7 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "enabled_providers": ["github-copilot"],
+  "enabled_providers": [
+    "github-copilot"
+  ],
   "share": "disabled",
+  "model": "github-copilot/claude-opus-4.6",
   "permission": {
     "*": "allow"
   }
