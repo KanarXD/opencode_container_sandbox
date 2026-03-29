@@ -8,10 +8,11 @@ ARG OPENCODE_VERSION
 ARG JAVA_VERSION
 
 # Install basic tools and configurable Java version
-RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk && apt-get clean
+RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
 
 ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64
 ENV PATH=${JAVA_HOME}/bin:${PATH}
+ENV CHROME_BIN=/usr/bin/chromium
 
 # Install OpenCode globally
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
