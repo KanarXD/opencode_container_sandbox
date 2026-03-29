@@ -6,6 +6,10 @@
   "share": "disabled",
   "model": "github-copilot/claude-opus-4.6",
   "permission": {
-    "*": "allow"
+    "*": "allow",
+    "bash": {
+      "git push*": "deny",
+      "git commit*": "deny"
+    }
   }
 }

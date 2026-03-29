@@ -1,5 +1,14 @@
 # OpenCode docker sandbox
 
+## Description
+
+This repository provides a Docker-based sandbox environment for OpenCode, allowing developers to easily set up and test
+their code in an isolated environment. The sandbox includes all necessary dependencies and tools to run OpenCode
+applications without affecting the host system.
+
+OpenCode has access to your copilot authorization, so you can use all your models and features in the sandbox
+environment.
+
 ## Usage
 
 ### setup docker image and cli
