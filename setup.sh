@@ -8,3 +8,6 @@ docker build \
 
 # Create local directories for opencode data and configuration if they don't exist
 mkdir -p ~/.local/share/opencode
+
+chmod u+x ./bin/opencode_sandbox.sh
+ln -sfn "$(pwd)/bin/opencode_sandbox.sh" ~/.local/bin/opencode_sandbox

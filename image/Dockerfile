@@ -25,4 +25,4 @@ COPY --chown=${USER_ID}:${GROUP_ID} ./opencode.json /home/opencode/.config/openc
 
 WORKDIR /workspace
 
-CMD ["opencode"]
+ENTRYPOINT ["opencode"]
