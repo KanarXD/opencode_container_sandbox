@@ -26,10 +26,10 @@ RUN groupadd -g ${GROUP_ID} opencode && \
 USER opencode
 
 # Create necessary directories for OpenCode configuration
-RUN mkdir -p ~/.local/share/opencode ~/.config/opencode
+RUN mkdir -p ~/.local/share/opencode ~/.agents
 
 # Copy the configuration file to the container
-COPY --chown=${USER_ID}:${GROUP_ID} ./opencode.json /home/opencode/.config/opencode/opencode.json
+COPY --chown=${USER_ID}:${GROUP_ID} .config /home/opencode/.config
 
 WORKDIR /workspace
 
