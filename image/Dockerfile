@@ -18,8 +18,8 @@ ENV CHROME_BIN=/usr/bin/chromium
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 
 # Create a non-root user to match your host
+ARG GROUP_ID=1000
 ARG USER_ID
-ARG GROUP_ID
 RUN groupadd -g ${GROUP_ID} opencode && \
     useradd -u ${USER_ID} -g opencode -m opencode
 
