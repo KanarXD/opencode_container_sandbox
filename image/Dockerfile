@@ -10,7 +10,7 @@ ARG JAVA_VERSION
 # Install basic tools and configurable Java version
 RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
 
-ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64
+ENV JAVA_HOME=/etc/alternatives/java_home
 ENV PATH=${JAVA_HOME}/bin:${PATH}
 ENV CHROME_BIN=/usr/bin/chromium
 
