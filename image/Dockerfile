@@ -1,11 +1,13 @@
 ARG DEBIAN_VERSION=13.4
 ARG OPENCODE_VERSION=1.3.3
 ARG JAVA_VERSION=21
+ARG TERRAFORM_VERSION=1.12.0
 
 FROM debian:${DEBIAN_VERSION}
 
 ARG OPENCODE_VERSION
 ARG JAVA_VERSION
+ARG TERRAFORM_VERSION
 
 # Install basic tools and configurable Java version
 RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
@@ -20,6 +22,13 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list && \
     apt-get update && apt-get install -y gh && apt-get clean
+
+# Install Terraform
+RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(dpkg --print-architecture).zip \
+      -o /tmp/terraform.zip && \
+    apt-get update && apt-get install -y unzip && apt-get clean && \
+    unzip /tmp/terraform.zip -d /usr/local/bin/ && \
+    rm /tmp/terraform.zip
 
 # Install OpenCode globally
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}

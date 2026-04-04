@@ -120,7 +120,7 @@ The runtime config lives at `image/.config/opencode/opencode.json`. Key settings
 |---|---|
 | `setup.sh` | Main setup script — build image, create creds, install CLI |
 | `bin/opencode_sandbox.sh` | Runtime launcher — mounts volumes, runs container |
-| `image/Dockerfile` | Docker image definition (Debian + Java + Node + tools) |
+| `image/Dockerfile` | Docker image definition (Debian + Java + Node + Terraform + tools) |
 | `image/.config/opencode/opencode.json` | OpenCode agent configuration |
 | `credentials/` | Template files for GitHub/Gradle credentials |
 
