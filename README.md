@@ -34,7 +34,7 @@ into the Docker image.
 | Type | File | Purpose |
 |---|---|---|
 | GitHub git access | `github/.git-credentials` | Clone/fetch private GitHub repos |
-| GitHub API (gh CLI) | `github/.git-credentials` | Read issues, PRs, etc. via `gh` CLI |
+| GitHub API (gh CLI) | `github/.git-credentials` | Automatically extracted PAT is passed as `GH_TOKEN` |
 | Git config | `github/.gitconfig` | Git credential helper configuration |
 | Nexus/Artifactory | `gradle/gradle.properties` | Resolve dependencies from private Maven repos |
 | Azure Artifacts | `gradle/gradle.properties` | Resolve dependencies from Azure Artifacts Maven feeds |
