@@ -20,9 +20,14 @@ if [ -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/gradle/gradle.properties:/home/opencode/.gradle/gradle.properties:ro"
 fi
 
+if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
+  echo "Error: Missing $HOME/.local/share/opencode/auth.json"
+  exit 1
+fi
+
 docker run -it --rm \
   -u "$(id -u):1000" \
-  -v ~/.local/share/opencode:/home/opencode/.local/share/opencode \
+  -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
   -v ~/.agents/:/home/opencode/.agents \
   -v "$(pwd)":/workspace \
   $CREDENTIAL_MOUNTS \
