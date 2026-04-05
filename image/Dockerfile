@@ -57,7 +57,7 @@ WORKDIR /home/opencode
 RUN mkdir -p ~/.local/share/opencode ~/.agents ~/.gradle
 
 # Install Playwright CLI skill files to ~/.agents/skills/playwright-cli/
-RUN playwright-cli install --skills
+RUN playwright-cli install --skills=agents
 
 # Copy the configuration file to the container
 COPY --chown=${USER_ID}:${GROUP_ID} .config /home/opencode/.config
