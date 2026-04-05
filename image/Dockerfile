@@ -1,11 +1,9 @@
 ARG DEBIAN_VERSION=13.4
-ARG OPENCODE_VERSION=1.3.3
 ARG JAVA_VERSION=21
 ARG TERRAFORM_VERSION=1.12.0
 
 FROM debian:${DEBIAN_VERSION}
 
-ARG OPENCODE_VERSION
 ARG JAVA_VERSION
 ARG TERRAFORM_VERSION
 
@@ -30,7 +28,8 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/ter
     unzip /tmp/terraform.zip -d /usr/local/bin/ && \
     rm /tmp/terraform.zip
 
-# Install OpenCode globally
+# Install OpenCode globally (placed late to maximize layer caching when version changes)
+ARG OPENCODE_VERSION=1.3.15
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 
 # Create a non-root user to match your host
