@@ -25,6 +25,16 @@ if [ -f "$HOME/.config/opencode/AGENTS.md" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.config/opencode/AGENTS.md:/home/opencode/.config/opencode/AGENTS.md:ro"
 fi
 
+# Mount host agent skills into ~/.claude/skills/ (avoids overriding image's ~/.agents/skills/)
+if [ -d "$HOME/.agents/skills" ]; then
+  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.agents/skills/:/home/opencode/.claude/skills/:ro"
+fi
+
+# Mount host OpenCode skills if directory exists
+if [ -d "$HOME/.config/opencode/skills" ]; then
+  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.config/opencode/skills/:/home/opencode/.config/opencode/skills/:ro"
+fi
+
 if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   echo "Error: Missing $HOME/.local/share/opencode/auth.json"
   exit 1
@@ -33,7 +43,6 @@ fi
 docker run -it --rm \
   -u "$(id -u):1000" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
-  -v "$HOME/.agents/:/home/opencode/.agents" \
   -v "$(pwd):/workspace" \
   $CREDENTIAL_MOUNTS \
   opencode-agent:latest

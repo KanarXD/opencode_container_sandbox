@@ -1,6 +1,7 @@
 ARG DEBIAN_VERSION=13.4
 ARG JAVA_VERSION=21
 ARG TERRAFORM_VERSION=1.12.0
+ARG PLAYWRIGHT_CLI_VERSION=0.1.5
 
 FROM debian:${DEBIAN_VERSION}
 
@@ -32,6 +33,16 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/ter
 ARG OPENCODE_VERSION=1.3.15
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 
+# Install Playwright CLI globally and Chromium browser with system dependencies
+ARG PLAYWRIGHT_CLI_VERSION
+RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} && \
+    npx playwright install --with-deps chromium
+
+# Playwright CLI configuration for headless Docker environment
+ENV PLAYWRIGHT_MCP_HEADLESS=true
+ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
+ENV PLAYWRIGHT_MCP_BROWSER=chromium
+
 # Create a non-root user to match your host
 ARG GROUP_ID=1000
 ARG USER_ID
@@ -42,6 +53,9 @@ USER opencode
 
 # Create necessary directories for OpenCode configuration
 RUN mkdir -p ~/.local/share/opencode ~/.agents ~/.gradle
+
+# Install Playwright CLI skill files to ~/.agents/skills/playwright-cli/
+RUN playwright-cli install --skills
 
 # Copy the configuration file to the container
 COPY --chown=${USER_ID}:${GROUP_ID} .config /home/opencode/.config

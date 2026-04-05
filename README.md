@@ -23,6 +23,23 @@ bash setup.sh
 opencode_sandbox
 ```
 
+## Browser Automation
+
+The sandbox includes [Playwright CLI](https://github.com/microsoft/playwright-cli)
+(`@playwright/cli`), which gives OpenCode the ability to see and interact with web
+pages. OpenCode discovers this capability automatically via the built-in
+`playwright-cli` skill.
+
+- Runs headless Chromium inside the container (no display server required)
+- OpenCode can open URLs, inspect page structure, click elements, fill forms,
+  take screenshots, and more
+- Useful for testing web applications, verifying UI changes, and debugging
+  frontend issues
+
+### Changing the Playwright CLI version
+
+Update the `PLAYWRIGHT_CLI_VERSION` ARG in `image/Dockerfile` and rebuild.
+
 ## Credentials
 
 The sandbox supports read-only access to private repositories via tokens. Credentials are stored on your host at

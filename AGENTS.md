@@ -16,7 +16,7 @@ credentials/                 # Example credential templates
   gradle/                   #   Gradle/Maven repository credential examples
 image/                       # Docker image definition
   .config/opencode/          #   OpenCode runtime config (opencode.json)
-  Dockerfile                 #   Debian-based image with Java, Node, gh, Chromium
+  Dockerfile                 #   Debian-based image with Java, Node, gh, Chromium, Playwright CLI
 setup.sh                     # One-time setup: builds image, creates credentials
 ```
 
@@ -125,6 +125,20 @@ The runtime config lives at `image/.config/opencode/opencode.json`. Key settings
 | `credentials/` | Template files for GitHub/Gradle credentials |
 
 ## Common Modification Scenarios
+
+### Browser Automation (Playwright CLI)
+
+The Docker image includes `playwright-cli` (`@playwright/cli`) for browser
+automation. OpenCode discovers it automatically via the `playwright-cli` skill
+(installed at `~/.agents/skills/playwright-cli/SKILL.md`).
+
+- Runs headless Chromium inside the container (no display server needed).
+- Configured via environment variables: `PLAYWRIGHT_MCP_HEADLESS`,
+  `PLAYWRIGHT_MCP_NO_SANDBOX`, `PLAYWRIGHT_MCP_BROWSER`.
+- Use `playwright-cli open <url>` to start a browser session.
+- Use `playwright-cli snapshot` to inspect page state (preferred over screenshots).
+- Use `playwright-cli click <ref>` to interact with elements from the snapshot.
+- The version is pinned via `PLAYWRIGHT_CLI_VERSION` ARG in the Dockerfile.
 
 ### Adding a new tool to the Docker image
 
