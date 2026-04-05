@@ -51,6 +51,8 @@ RUN groupadd -g ${GROUP_ID} opencode && \
 
 USER opencode
 
+WORKDIR /home/opencode
+
 # Create necessary directories for OpenCode configuration
 RUN mkdir -p ~/.local/share/opencode ~/.agents ~/.gradle
 
