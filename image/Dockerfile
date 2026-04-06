@@ -42,6 +42,7 @@ RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} && \
 ENV PLAYWRIGHT_MCP_HEADLESS=true
 ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
 ENV PLAYWRIGHT_MCP_BROWSER=chromium
+ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp/playwright-output
 
 # Create a non-root user to match your host
 ARG GROUP_ID=1000
