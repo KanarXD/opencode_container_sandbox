@@ -10,6 +10,9 @@
 ## Formatting 
 - After making code changes, always run the project's code formatter if one is configured (e.g., prettier, black, gofmt, rustfmt). Do this before considering the task complete.
 
+## Visual Testing
+- When making visual or frontend changes (HTML, CSS, UI components, templates, etc.), use the `playwright-cli` skill to visually verify the changes. Open the relevant page in the browser, take a snapshot, and confirm the changes render as expected before considering the task complete.
+
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
 
