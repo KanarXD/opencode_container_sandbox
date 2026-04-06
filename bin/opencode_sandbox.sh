@@ -20,11 +20,6 @@ if [ -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/gradle/gradle.properties:/home/opencode/.gradle/gradle.properties:ro"
 fi
 
-# Mount OpenCode AGENTS.md if it exists
-if [ -f "$HOME/.config/opencode/AGENTS.md" ]; then
-  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.config/opencode/AGENTS.md:/home/opencode/.config/opencode/AGENTS.md:ro"
-fi
-
 # Mount host agent skills into ~/.claude/skills/ (avoids overriding image's ~/.agents/skills/)
 if [ -d "$HOME/.agents/skills" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.agents/skills/:/home/opencode/.claude/skills/:ro"
