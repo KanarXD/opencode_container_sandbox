@@ -11,7 +11,8 @@ ARG TERRAFORM_VERSION
 # Install basic tools and configurable Java version
 RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
 
-RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-openjdk
+RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-openjdk && \
+    rm -rf /usr/lib/jvm/openjdk-${JAVA_VERSION}
 ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
 ENV PATH=${JAVA_HOME}/bin:${PATH}
 ENV CHROME_BIN=/usr/bin/chromium
