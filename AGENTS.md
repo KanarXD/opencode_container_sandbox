@@ -17,6 +17,7 @@ credentials/                 # Example credential templates
 image/                       # Docker image definition
   .config/opencode/          #   OpenCode runtime config (opencode.json)
   Dockerfile                 #   Debian-based image with Java, Node, gh, Chromium, Playwright CLI
+versions.env                 # Pinned tool/base image versions (single source of truth)
 setup.sh                     # One-time setup: builds image, creates credentials
 ```
 
@@ -35,8 +36,11 @@ This script:
 
 ### Build the Docker image only
 
+All version arguments are defined in `versions.env` and passed automatically by
+`setup.sh`. To build manually, pass the required `--build-arg` values:
+
 ```bash
-docker build --build-arg USER_ID="$(id -u)" -t opencode-agent ./image
+bash setup.sh
 ```
 
 ### Run the sandbox
@@ -54,7 +58,7 @@ To verify changes:
 
 1. **Dockerfile changes**: Rebuild the image and confirm it starts correctly.
    ```bash
-   docker build --build-arg USER_ID="$(id -u)" -t opencode-agent ./image
+   bash setup.sh
    docker run -it --rm opencode-agent:latest bash -c "echo ok"
    ```
 2. **Script changes**: Run `bash -n <script>` for syntax checking, then test manually.
@@ -88,8 +92,8 @@ No linting or formatting tools are configured. If adding shell linting, use
 
 ### Dockerfile
 
-- Pin versions via `ARG` at the top of the file
-  (`DEBIAN_VERSION`, `OPENCODE_VERSION`, `JAVA_VERSION`).
+- Declare version `ARG`s without defaults — all versions are supplied via
+  `versions.env` and passed as `--build-arg` by `setup.sh`.
 - Minimize layers: combine related `apt-get` commands into single `RUN`
   instructions and always end with `apt-get clean`.
 - Use the non-root user pattern: create a user matching the host UID/GID.
@@ -122,6 +126,7 @@ The runtime config lives at `image/.config/opencode/opencode.json`. Key settings
 | `bin/opencode_sandbox.sh` | Runtime launcher — mounts volumes, runs container |
 | `image/Dockerfile` | Docker image definition (Debian + Java + Node + Terraform + tools) |
 | `image/.config/opencode/opencode.json` | OpenCode agent configuration |
+| `versions.env` | Pinned tool/base image versions (single source of truth) |
 | `credentials/` | Template files for GitHub/Gradle credentials |
 
 ## Common Modification Scenarios
@@ -142,9 +147,10 @@ automation. OpenCode discovers it automatically via the `playwright-cli` skill
 
 ### Adding a new tool to the Docker image
 
-Edit `image/Dockerfile`. Add the package to the existing `apt-get install` line
-or add a new `RUN` block. Pin versions via `ARG` when possible. Rebuild with
-`bash setup.sh`.
+1. Add a version variable to `versions.env`
+2. Add a matching `ARG` declaration (without default) and `RUN` install block
+   in `image/Dockerfile`
+3. Rebuild with `bash setup.sh`
 
 ### Adding a new credential type
 
@@ -155,11 +161,11 @@ or add a new `RUN` block. Pin versions via `ARG` when possible. Rebuild with
 
 ### Changing the OpenCode version
 
-Update the `OPENCODE_VERSION` ARG in `image/Dockerfile` and rebuild.
+Update the `OPENCODE_VERSION` in `versions.env` and rebuild.
 
 ### Changing the Java version
 
-Update the `JAVA_VERSION` ARG in `image/Dockerfile` and rebuild.
+Update the `JAVA_VERSION` in `versions.env` and rebuild.
 
 ## Git Workflow
 

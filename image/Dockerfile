@@ -1,9 +1,4 @@
-ARG DEBIAN_VERSION=13.4
-ARG JAVA_VERSION=21
-ARG TERRAFORM_VERSION=1.12.0
-ARG GRADLE_VERSION=8.14
-ARG ANGULAR_CLI_VERSION=19.2.7
-ARG PLAYWRIGHT_CLI_VERSION=0.1.5
+ARG DEBIAN_VERSION
 
 FROM debian:${DEBIAN_VERSION}
 
@@ -43,7 +38,7 @@ RUN curl -fsSL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION
 ENV GRADLE_HOME=/opt/gradle-${GRADLE_VERSION}
 
 # Install OpenCode globally (placed late to maximize layer caching when version changes)
-ARG OPENCODE_VERSION=1.3.15
+ARG OPENCODE_VERSION
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 
 # Install Angular CLI globally

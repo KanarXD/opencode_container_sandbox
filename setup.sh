@@ -4,10 +4,23 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CREDENTIALS_DIR="$HOME/.config/opencode-sandbox"
+VERSIONS_FILE="$SCRIPT_DIR/versions.env"
+
+if [ ! -f "$VERSIONS_FILE" ]; then
+  echo "Error: $VERSIONS_FILE not found"
+  exit 1
+fi
+
+# Read versions.env and build --build-arg flags dynamically
+BUILD_ARGS=(--build-arg "USER_ID=$(id -u)")
+while IFS='=' read -r KEY VALUE; do
+  [[ -z "$KEY" || "$KEY" == \#* ]] && continue
+  BUILD_ARGS+=(--build-arg "${KEY}=${VALUE}")
+done < "$VERSIONS_FILE"
 
 # Build the Docker image
 docker build \
-  --build-arg USER_ID="$(id -u)" \
+  "${BUILD_ARGS[@]}" \
   -t opencode-agent ./image
 
 # Create local directories for opencode data and configuration if they don't exist
