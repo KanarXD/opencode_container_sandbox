@@ -1,7 +1,4 @@
-ARG DEBIAN_VERSION=13.4
-ARG JAVA_VERSION=21
-ARG TERRAFORM_VERSION=1.12.0
-ARG PLAYWRIGHT_CLI_VERSION=0.1.5
+ARG DEBIAN_VERSION
 
 FROM debian:${DEBIAN_VERSION}
 
@@ -11,7 +8,9 @@ ARG TERRAFORM_VERSION
 # Install basic tools and configurable Java version
 RUN apt-get update && apt-get install -y npm git curl openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
 
-ENV JAVA_HOME=/etc/alternatives/java_home
+RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-openjdk && \
+    rm -rf /usr/lib/jvm/openjdk-${JAVA_VERSION}
+ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
 ENV PATH=${JAVA_HOME}/bin:${PATH}
 ENV CHROME_BIN=/usr/bin/chromium
 
@@ -29,9 +28,22 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/ter
     unzip /tmp/terraform.zip -d /usr/local/bin/ && \
     rm /tmp/terraform.zip
 
+# Install Gradle
+ARG GRADLE_VERSION
+RUN curl -fsSL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+      -o /tmp/gradle.zip && \
+    unzip /tmp/gradle.zip -d /opt/ && \
+    ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle && \
+    rm /tmp/gradle.zip
+ENV GRADLE_HOME=/opt/gradle-${GRADLE_VERSION}
+
 # Install OpenCode globally (placed late to maximize layer caching when version changes)
-ARG OPENCODE_VERSION=1.3.15
+ARG OPENCODE_VERSION
 RUN npm install -g opencode-ai@${OPENCODE_VERSION}
+
+# Install Angular CLI globally
+ARG ANGULAR_CLI_VERSION
+RUN npm install -g @angular/cli@${ANGULAR_CLI_VERSION}
 
 # Install Playwright CLI globally and Chromium browser with system dependencies
 ARG PLAYWRIGHT_CLI_VERSION
