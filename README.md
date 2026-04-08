@@ -50,8 +50,7 @@ into the Docker image.
 
 | Type | File | Purpose |
 |---|---|---|
-| GitHub git access | `github/.git-credentials` | Clone/fetch private GitHub repos |
-| GitHub API (gh CLI) | `github/.git-credentials` | Read issues, PRs, etc. via `gh` CLI |
+| GitHub PAT | `github/.git-credentials` | Passed as `GH_TOKEN` env var for `gh` CLI authentication |
 | Git config | `github/.gitconfig` | Git credential helper configuration |
 | Nexus/Artifactory | `gradle/gradle.properties` | Resolve dependencies from private Maven repos |
 | Azure Artifacts | `gradle/gradle.properties` | Resolve dependencies from Azure Artifacts Maven feeds |
@@ -62,7 +61,7 @@ Running `bash setup.sh` automatically creates template credential files at `~/.c
 don't already exist. Edit them with your actual tokens:
 
 ```bash
-# GitHub — replace <YOUR_GITHUB_PAT> with a read-only PAT
+# GitHub — paste your classic PAT (token only, no URL)
 vim ~/.config/opencode-sandbox/github/.git-credentials
 
 # Gradle repositories — replace placeholders with your credentials
@@ -74,8 +73,8 @@ Template files with format examples are also available in the `credentials/` dir
 ### GitHub PAT creation
 
 1. Go to https://github.com/settings/tokens
-2. Generate a new token (classic) with `repo` (read) scope
-3. Paste it into `~/.config/opencode-sandbox/github/.git-credentials`
+2. Generate a new token (classic) with `repo` scope
+3. Paste the token as the sole content of `~/.config/opencode-sandbox/github/.git-credentials`
 
 ### Azure Artifacts PAT creation
 

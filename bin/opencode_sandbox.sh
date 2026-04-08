@@ -11,8 +11,12 @@ if [ -f "$CREDENTIALS_DIR/github/.gitconfig" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/github/.gitconfig:/home/opencode/.gitconfig:ro"
 fi
 
+# Read GitHub PAT from .git-credentials and expose as GH_TOKEN for gh CLI
 if [ -f "$CREDENTIALS_DIR/github/.git-credentials" ]; then
-  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/github/.git-credentials:/home/opencode/.git-credentials:ro"
+  GH_TOKEN="$(cat "$CREDENTIALS_DIR/github/.git-credentials")"
+  if [ -n "$GH_TOKEN" ]; then
+    CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -e GH_TOKEN=$GH_TOKEN"
+  fi
 fi
 
 # Mount Gradle credentials if they exist
