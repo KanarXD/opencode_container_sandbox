@@ -39,7 +39,7 @@ fi
 if [ ! -f "$CREDENTIALS_DIR/github/.git-credentials" ]; then
   cp "$SCRIPT_DIR/credentials/github/.git-credentials.example" "$CREDENTIALS_DIR/github/.git-credentials"
   chmod 600 "$CREDENTIALS_DIR/github/.git-credentials"
-  echo "Created $CREDENTIALS_DIR/github/.git-credentials — please edit with your GitHub PAT"
+  echo "Created $CREDENTIALS_DIR/github/.git-credentials — paste your GitHub classic PAT (https://github.com/settings/tokens) as the sole content"
 fi
 
 if [ ! -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
