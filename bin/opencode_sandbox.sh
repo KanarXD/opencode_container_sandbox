@@ -13,8 +13,8 @@ fi
 
 # Read GitHub PAT from .git-credentials and expose as GH_TOKEN for gh CLI
 if [ -f "$CREDENTIALS_DIR/github/.git-credentials" ]; then
-  GH_TOKEN="$(cat "$CREDENTIALS_DIR/github/.git-credentials")"
-  if [ -n "$GH_TOKEN" ]; then
+  GH_TOKEN="$(tr -d '[:space:]' < "$CREDENTIALS_DIR/github/.git-credentials")"
+  if [ -n "$GH_TOKEN" ] && [ "$GH_TOKEN" != "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ]; then
     CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -e GH_TOKEN=$GH_TOKEN"
   fi
 fi
