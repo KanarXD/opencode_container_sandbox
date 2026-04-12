@@ -47,7 +47,25 @@ if [ ! -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
 fi
 
 chmod u+x ./bin/opencode_sandbox.sh
+mkdir -p ~/.local/bin
 ln -sfn "$(pwd)/bin/opencode_sandbox.sh" ~/.local/bin/opencode_sandbox
+
+# Ensure ~/.local/bin is in the user's PATH
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  case "$SHELL" in
+    */zsh)  SHELL_RC="$HOME/.zshrc" ;;
+    */bash) SHELL_RC="$HOME/.bashrc" ;;
+    *)      SHELL_RC="$HOME/.profile" ;;
+  esac
+
+  if ! grep -qF '.local/bin' "$SHELL_RC" 2>/dev/null; then
+    echo "" >> "$SHELL_RC"
+    echo '# Added by opencode-sandbox setup' >> "$SHELL_RC"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
+    echo "Added ~/.local/bin to PATH in $SHELL_RC"
+    echo "Run 'source $SHELL_RC' or restart your shell to apply."
+  fi
+fi
 
 echo ""
 echo "Setup complete!"
