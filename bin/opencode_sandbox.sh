@@ -24,6 +24,11 @@ if [ -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/gradle/gradle.properties:/home/opencode/.gradle/gradle.properties:ro"
 fi
 
+# Mount Azure CLI credentials if they exist (user symlinks or copies ~/.azure into this directory)
+if [ -d "$CREDENTIALS_DIR/azure" ]; then
+  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/azure:/home/opencode/.azure:ro"
+fi
+
 # Mount host agent skills into ~/.claude/skills/ (avoids overriding image's ~/.agents/skills/)
 if [ -d "$HOME/.agents/skills" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $HOME/.agents/skills/:/home/opencode/.claude/skills/:ro"

@@ -54,6 +54,7 @@ into the Docker image.
 | Git config | `github/.gitconfig` | Git credential helper configuration |
 | Nexus/Artifactory | `gradle/gradle.properties` | Resolve dependencies from private Maven repos |
 | Azure Artifacts | `gradle/gradle.properties` | Resolve dependencies from Azure Artifacts Maven feeds |
+| Azure CLI | `azure/` | Symlink to `~/.azure/` for read-only `az` CLI access to Azure resources |
 
 ### Setup
 
@@ -81,6 +82,41 @@ Template files with format examples are also available in the `credentials/` dir
 1. Go to your Azure DevOps organization → User Settings → Personal Access Tokens
 2. Create a token with **Packaging (Read)** scope
 3. Paste it into `~/.config/opencode-sandbox/gradle/gradle.properties`
+
+### Azure CLI access
+
+The sandbox can mount Azure CLI credentials read-only so the `az` CLI inside the container can reuse your existing
+login session. Credentials are read from `~/.config/opencode-sandbox/azure/`, consistent with all other credential
+types.
+
+**Setup:**
+
+1. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) on your host
+2. Run `az login` on your host to authenticate
+3. Symlink your Azure config into the sandbox credentials directory:
+   ```bash
+   ln -s ~/.azure ~/.config/opencode-sandbox/azure
+   ```
+   Alternatively, copy only the files you need (e.g., `azureProfile.json` and `msal_token_cache.json`) into
+   `~/.config/opencode-sandbox/azure/` if you prefer not to expose the entire `~/.azure/` directory.
+4. Start the sandbox — your Azure session is automatically available
+
+The container can run read-only commands such as:
+
+```bash
+az monitor app-insights query --app <app-id> --analytics-query "requests | take 10"
+az monitor log-analytics query --workspace <workspace-id> --analytics-query "AzureActivity | take 10"
+```
+
+**Read-only enforcement:**
+
+- The `azure/` directory is mounted read-only (`:ro`), preventing the container from modifying your token cache
+- Destructive `az` commands (`create`, `delete`, `update`, `start`, `stop`, `restart`) are denied in the OpenCode
+  configuration
+- For additional protection, assign a read-only Azure role (e.g., **Monitoring Reader**) to your identity via Azure RBAC
+
+**Note:** Since the mount is read-only, the `az` CLI inside the container cannot refresh expired tokens. If your session
+expires (typically after ~1 hour), re-run `az login` on your host and restart the sandbox.
 
 ## Troubleshooting
 

@@ -8,7 +8,16 @@
   "permission": {
     "*": "allow",
     "bash": {
-      "git push*": "deny"
+      "git push*": "deny",
+      "az * create *": "deny",
+      "az * delete *": "deny",
+      "az * update *": "deny",
+      "az * start *": "deny",
+      "az * stop *": "deny",
+      "az * restart *": "deny",
+      "az * set-policy *": "deny",
+      "az login*": "deny",
+      "az logout*": "deny"
     }
   }
 }

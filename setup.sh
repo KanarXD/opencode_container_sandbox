@@ -29,6 +29,7 @@ mkdir -p ~/.local/share/opencode
 # Create credential directories
 mkdir -p "$CREDENTIALS_DIR/github"
 mkdir -p "$CREDENTIALS_DIR/gradle"
+mkdir -p "$CREDENTIALS_DIR/azure"
 
 # Copy example credential files if actual files don't exist yet
 if [ ! -f "$CREDENTIALS_DIR/github/.gitconfig" ]; then
@@ -55,3 +56,6 @@ echo ""
 echo "Setup complete!"
 echo "Credential files are stored in: $CREDENTIALS_DIR"
 echo "Edit them with your tokens before running opencode_sandbox."
+echo ""
+echo "For Azure CLI access, symlink your ~/.azure directory:"
+echo "  ln -s ~/.azure $CREDENTIALS_DIR/azure"
