@@ -23,6 +23,42 @@ bash setup.sh
 opencode_sandbox
 ```
 
+### run the sandbox on a separate branch (git worktree)
+
+Pass a branch name as an argument to automatically create a
+[git worktree](https://git-scm.com/docs/git-worktree) for that branch. The
+sandbox container will work inside the worktree, leaving the main branch
+untouched.
+
+```bash
+opencode_sandbox my-feature
+```
+
+This will:
+
+1. Create a new branch `my-feature` from your current HEAD (or reuse it if the
+   branch already exists)
+2. Create a worktree at `.worktrees/my-feature/` inside the repository
+3. Start the container with the working directory set to the worktree
+
+The worktree is preserved after the container exits so you can review changes,
+commit, or push from the host. If you run `opencode_sandbox my-feature` again,
+the existing worktree is reused.
+
+#### Cleaning up worktrees
+
+```bash
+git worktree remove .worktrees/my-feature
+# optionally delete the branch too:
+git branch -d my-feature
+```
+
+To list all active worktrees:
+
+```bash
+git worktree list
+```
+
 ## Browser Automation
 
 The sandbox includes [Playwright CLI](https://github.com/microsoft/playwright-cli)

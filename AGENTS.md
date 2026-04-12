@@ -55,6 +55,21 @@ opencode_sandbox
 bash bin/opencode_sandbox.sh
 ```
 
+### Run the sandbox on a separate branch (git worktree)
+
+```bash
+opencode_sandbox my-feature
+# or directly:
+bash bin/opencode_sandbox.sh my-feature
+```
+
+This creates a git worktree at `.worktrees/my-feature/` inside the repository
+and starts the container with its working directory set to the worktree. The
+main branch is left untouched. The worktree is preserved after the container
+exits. Running the same command again reuses the existing worktree.
+
+Clean up with: `git worktree remove .worktrees/my-feature`
+
 ## Testing
 
 There is no automated test suite. This is a Bash/Docker infrastructure project.

@@ -1,9 +1,54 @@
 #!/usr/bin/env bash
 
+BRANCH_NAME="${1:-}"
+CREDENTIALS_DIR="$HOME/.config/opencode-sandbox"
+WORKTREE_DIR=".worktrees"
+CONTAINER_WORKDIR="/workspace"
+
+# --- Git worktree setup (only when a branch name is provided) ---
+if [ -n "$BRANCH_NAME" ]; then
+  # Verify current directory is a git repository
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Current directory is not a git repository"
+    exit 1
+  fi
+
+  # Add .worktrees/ to .git/info/exclude if not already there (local-only, no repo changes)
+  EXCLUDE_FILE="$(git rev-parse --git-dir)/info/exclude"
+  if ! grep -qx '.worktrees/' "$EXCLUDE_FILE" 2>/dev/null; then
+    echo '.worktrees/' >> "$EXCLUDE_FILE"
+  fi
+
+  WORKTREE_PATH="$WORKTREE_DIR/$BRANCH_NAME"
+
+  if [ -d "$WORKTREE_PATH" ]; then
+    echo "Reusing existing worktree at $WORKTREE_PATH (branch '$BRANCH_NAME')"
+  else
+    mkdir -p "$WORKTREE_DIR"
+
+    # Create the worktree: use -b if branch doesn't exist yet, otherwise attach to existing branch
+    if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+      echo "Creating worktree for existing branch '$BRANCH_NAME'..."
+      git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
+    else
+      echo "Creating worktree with new branch '$BRANCH_NAME' from $(git rev-parse --abbrev-ref HEAD)..."
+      git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME"
+    fi
+
+    # Rewrite .git file and gitdir back-reference to use relative paths
+    # so they resolve correctly when mounted inside the container at /workspace
+    REPO_GIT_DIR="$(git rev-parse --git-dir)"
+    echo "gitdir: ../../.git/worktrees/$BRANCH_NAME" > "$WORKTREE_PATH/.git"
+    echo "../../../$WORKTREE_DIR/$BRANCH_NAME/.git" > "$REPO_GIT_DIR/worktrees/$BRANCH_NAME/gitdir"
+  fi
+
+  CONTAINER_WORKDIR="/workspace/$WORKTREE_PATH"
+  echo "Working on branch '$BRANCH_NAME' in worktree at $WORKTREE_PATH/"
+fi
+
 echo "Starting AI Sandbox with OpenCode Agent..."
 
-CREDENTIALS_DIR="$HOME/.config/opencode-sandbox"
-
+# --- Credential mounts ---
 CREDENTIAL_MOUNTS=""
 
 # Mount GitHub credentials if they exist
@@ -48,5 +93,6 @@ docker run -it --rm \
   -u "$(id -u):1000" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
   -v "$(pwd):/workspace" \
+  -w "$CONTAINER_WORKDIR" \
   $CREDENTIAL_MOUNTS \
   opencode-agent:latest
