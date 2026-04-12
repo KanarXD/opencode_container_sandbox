@@ -15,10 +15,11 @@ credentials/                 # Example credential templates
   github/                   #   GitHub PAT and gitconfig examples
   gradle/                   #   Gradle/Maven repository credential examples
 image/                       # Docker image definition
-  .config/opencode/          #   OpenCode runtime config (opencode.json)
-  Dockerfile                 #   Debian-based image with Java, Node, gh, Chromium, Playwright CLI
+  .config/opencode/          #   OpenCode runtime config (opencode.json) and container AGENTS.md
+  Dockerfile                 #   Debian-based image with Java, Node, Gradle, Angular CLI, gh, Azure CLI, Chromium, Playwright CLI
 versions.env                 # Pinned tool/base image versions (single source of truth)
 setup.sh                     # One-time setup: builds image, creates credentials
+README.md                    # Project documentation
 ```
 
 ## Build / Setup Commands
@@ -31,8 +32,11 @@ bash setup.sh
 
 This script:
 1. Builds the Docker image tagged `opencode-agent` from `image/Dockerfile`
-2. Creates credential template files at `~/.config/opencode-sandbox/`
-3. Symlinks `bin/opencode_sandbox.sh` to `~/.local/bin/opencode_sandbox`
+2. Creates `~/.local/share/opencode/` for OpenCode auth data
+3. Creates credential template files at `~/.config/opencode-sandbox/`
+   (including `github/`, `gradle/`, and `azure/` subdirectories)
+4. Symlinks `bin/opencode_sandbox.sh` to `~/.local/bin/opencode_sandbox`
+5. Adds `~/.local/bin` to `PATH` in the user's shell RC file if not already present
 
 ### Build the Docker image only
 
@@ -106,16 +110,18 @@ No linting or formatting tools are configured. If adding shell linting, use
   read-only volumes (`:ro`) at container runtime.
 - Credential files must have restricted permissions (`chmod 600`).
 - The OpenCode config (`image/.config/opencode/opencode.json`) explicitly
-  denies `git push*` and `git commit*` to prevent accidental pushes from the
-  sandbox.
+  denies `git push*` and destructive Azure CLI commands (`az * create`,
+  `az * delete`, `az login`, etc.) to prevent accidental pushes and
+  infrastructure changes from the sandbox.
 
 ### Configuration (opencode.json)
 
 The runtime config lives at `image/.config/opencode/opencode.json`. Key settings:
 - Provider: `github-copilot` only
 - Model: `github-copilot/claude-opus-4.6`
-- Permissions: all tools allowed (`"*": "allow"`) except `git push` and
-  `git commit` in bash (denied)
+- Permissions: all tools allowed (`"*": "allow"`) except `git push*` and
+  destructive Azure CLI commands (`az * create/delete/update/start/stop/restart`,
+  `az * set-policy`, `az login`, `az logout`) in bash (denied)
 - Sharing: disabled
 
 ## Key Files to Know
@@ -124,10 +130,11 @@ The runtime config lives at `image/.config/opencode/opencode.json`. Key settings
 |---|---|
 | `setup.sh` | Main setup script — build image, create creds, install CLI |
 | `bin/opencode_sandbox.sh` | Runtime launcher — mounts volumes, runs container |
-| `image/Dockerfile` | Docker image definition (Debian + Java + Node + Terraform + tools) |
+| `image/Dockerfile` | Docker image definition (Debian + Java + Node + Gradle + Angular CLI + Terraform + Azure CLI + tools) |
 | `image/.config/opencode/opencode.json` | OpenCode agent configuration |
 | `versions.env` | Pinned tool/base image versions (single source of truth) |
 | `credentials/` | Template files for GitHub/Gradle credentials |
+| `README.md` | Project documentation |
 
 ## Common Modification Scenarios
 
@@ -139,7 +146,8 @@ automation. OpenCode discovers it automatically via the `playwright-cli` skill
 
 - Runs headless Chromium inside the container (no display server needed).
 - Configured via environment variables: `PLAYWRIGHT_MCP_HEADLESS`,
-  `PLAYWRIGHT_MCP_NO_SANDBOX`, `PLAYWRIGHT_MCP_BROWSER`.
+  `PLAYWRIGHT_MCP_NO_SANDBOX`, `PLAYWRIGHT_MCP_BROWSER`,
+  `PLAYWRIGHT_MCP_EXECUTABLE_PATH`, `PLAYWRIGHT_MCP_OUTPUT_DIR`.
 - Use `playwright-cli open <url>` to start a browser session.
 - Use `playwright-cli snapshot` to inspect page state (preferred over screenshots).
 - Use `playwright-cli click <ref>` to interact with elements from the snapshot.
@@ -166,6 +174,13 @@ Update the `OPENCODE_VERSION` in `versions.env` and rebuild.
 ### Changing the Java version
 
 Update the `JAVA_VERSION` in `versions.env` and rebuild.
+
+### Changing any pinned tool version
+
+All tool and base image versions are defined in `versions.env`. Update the
+relevant variable and rebuild with `bash setup.sh`. Available variables:
+`DEBIAN_VERSION`, `JAVA_VERSION`, `TERRAFORM_VERSION`, `GRADLE_VERSION`,
+`ANGULAR_CLI_VERSION`, `OPENCODE_VERSION`, `PLAYWRIGHT_CLI_VERSION`.
 
 ## Git Workflow
 
