@@ -5,8 +5,11 @@ FROM debian:${DEBIAN_VERSION}
 ARG JAVA_VERSION
 ARG TERRAFORM_VERSION
 
-# Install basic tools and configurable Java version
-RUN apt-get update && apt-get install -y npm git curl gpg openjdk-${JAVA_VERSION}-jdk chromium && apt-get clean
+# Install basic tools, Node.js/npm, headless JDK, and Chromium
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl gnupg unzip npm git \
+      openjdk-${JAVA_VERSION}-jdk-headless chromium && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-openjdk && \
     rm -rf /usr/lib/jvm/openjdk-${JAVA_VERSION}
@@ -19,22 +22,19 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
       -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list && \
-    apt-get update && apt-get install -y gh && apt-get clean
+    apt-get update && apt-get install -y --no-install-recommends gh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(dpkg --print-architecture).zip \
       -o /tmp/terraform.zip && \
-    apt-get update && apt-get install -y unzip && apt-get clean && \
     unzip /tmp/terraform.zip -d /usr/local/bin/ && \
     rm /tmp/terraform.zip
 
-# Install Azure CLI
-ARG AZURE_CLI_VERSION
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-      | gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/azure-cli/ bookworm main" \
-      > /etc/apt/sources.list.d/azure-cli.list && \
-    apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION}-1~bookworm && apt-get clean
+# Install Azure CLI from Debian's native repository (trixie ships azure-cli natively,
+# avoids the much larger Microsoft-bundled package that includes its own Python runtime)
+RUN apt-get update && apt-get install -y --no-install-recommends azure-cli && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Gradle
 ARG GRADLE_VERSION
@@ -53,15 +53,17 @@ RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 ARG ANGULAR_CLI_VERSION
 RUN npm install -g @angular/cli@${ANGULAR_CLI_VERSION}
 
-# Install Playwright CLI globally and Chromium browser with system dependencies
+# Install Playwright CLI globally (uses system Chromium via PLAYWRIGHT_MCP_EXECUTABLE_PATH,
+# no need to download a second Chromium binary, ~375 MB savings)
 ARG PLAYWRIGHT_CLI_VERSION
 RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} && \
-    npx playwright install --with-deps chromium
+    npm cache clean --force
 
 # Playwright CLI configuration for headless Docker environment
 ENV PLAYWRIGHT_MCP_HEADLESS=true
 ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
 ENV PLAYWRIGHT_MCP_BROWSER=chromium
+ENV PLAYWRIGHT_MCP_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp/playwright-output
 
 # Create a non-root user to match your host
