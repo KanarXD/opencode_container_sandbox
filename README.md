@@ -58,65 +58,52 @@ into the Docker image.
 
 ### Setup
 
-Running `bash setup.sh` automatically creates template credential files at `~/.config/opencode-sandbox/` if they
-don't already exist. Edit them with your actual tokens:
+Running `bash setup.sh` creates template credential files at `~/.config/opencode-sandbox/`. Copy your existing host
+credentials into the sandbox with the commands below.
+
+#### Git config
+
+Copies your git identity (user.name, user.email, etc.) into the sandbox:
 
 ```bash
-# GitHub — paste your classic PAT (token only, no URL)
-vim ~/.config/opencode-sandbox/github/.git-credentials
-
-# Gradle repositories — replace placeholders with your credentials
-vim ~/.config/opencode-sandbox/gradle/gradle.properties
+cp ~/.gitconfig ~/.config/opencode-sandbox/github/.gitconfig
 ```
 
-Template files with format examples are also available in the `credentials/` directory of this repository.
+#### GitHub PAT
 
-### GitHub PAT creation
-
-1. Go to https://github.com/settings/tokens
-2. Generate a new token (classic) with `repo` scope
-3. Paste the token as the sole content of `~/.config/opencode-sandbox/github/.git-credentials`
-
-### Azure Artifacts PAT creation
-
-1. Go to your Azure DevOps organization → User Settings → Personal Access Tokens
-2. Create a token with **Packaging (Read)** scope
-3. Paste it into `~/.config/opencode-sandbox/gradle/gradle.properties`
-
-### Azure CLI access
-
-The sandbox can mount Azure CLI credentials read-only so the `az` CLI inside the container can reuse your existing
-login session. Credentials are read from `~/.config/opencode-sandbox/azure/`, consistent with all other credential
-types.
-
-**Setup:**
-
-1. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) on your host
-2. Run `az login` on your host to authenticate
-3. Symlink your Azure config into the sandbox credentials directory:
-   ```bash
-   ln -s ~/.azure ~/.config/opencode-sandbox/azure
-   ```
-   Alternatively, copy only the files you need (e.g., `azureProfile.json` and `msal_token_cache.json`) into
-   `~/.config/opencode-sandbox/azure/` if you prefer not to expose the entire `~/.azure/` directory.
-4. Start the sandbox — your Azure session is automatically available
-
-The container can run read-only commands such as:
+Exports your existing `gh` CLI token for use inside the sandbox:
 
 ```bash
-az monitor app-insights query --app <app-id> --analytics-query "requests | take 10"
-az monitor log-analytics query --workspace <workspace-id> --analytics-query "AzureActivity | take 10"
+gh auth token > ~/.config/opencode-sandbox/github/.git-credentials
 ```
 
-**Read-only enforcement:**
+If you don't have `gh` installed, create a token manually at https://github.com/settings/tokens (classic token with
+`repo` scope) and paste it as the sole content of `~/.config/opencode-sandbox/github/.git-credentials`.
 
-- The `azure/` directory is mounted read-only (`:ro`), preventing the container from modifying your token cache
-- Destructive `az` commands (`create`, `delete`, `update`, `start`, `stop`, `restart`) are denied in the OpenCode
-  configuration
-- For additional protection, assign a read-only Azure role (e.g., **Monitoring Reader**) to your identity via Azure RBAC
+#### Gradle / Maven repository credentials
 
-**Note:** Since the mount is read-only, the `az` CLI inside the container cannot refresh expired tokens. If your session
-expires (typically after ~1 hour), re-run `az login` on your host and restart the sandbox.
+Copies your Gradle properties (Nexus, Artifactory, or Azure Artifacts tokens) into the sandbox:
+
+```bash
+cp ~/.gradle/gradle.properties ~/.config/opencode-sandbox/gradle/gradle.properties
+```
+
+For Azure Artifacts specifically, the token needs **Packaging (Read)** scope. Create one at your Azure DevOps
+organization → User Settings → Personal Access Tokens.
+
+#### Azure CLI
+
+Symlinks your Azure login session into the sandbox for read-only access to Azure resources (Monitor, Insights, Log
+Analytics, etc.):
+
+```bash
+ln -sf ~/.azure ~/.config/opencode-sandbox/azure
+```
+
+If you haven't authenticated yet, run `az login` on your host first.
+
+Alternatively, copy only specific files (e.g., `azureProfile.json` and `msal_token_cache.json`) into
+`~/.config/opencode-sandbox/azure/` if you prefer not to expose the entire `~/.azure/` directory.
 
 ## Troubleshooting
 

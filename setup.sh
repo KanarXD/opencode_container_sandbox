@@ -34,19 +34,16 @@ mkdir -p "$CREDENTIALS_DIR/azure"
 # Copy example credential files if actual files don't exist yet
 if [ ! -f "$CREDENTIALS_DIR/github/.gitconfig" ]; then
   cp "$SCRIPT_DIR/credentials/github/.gitconfig.example" "$CREDENTIALS_DIR/github/.gitconfig"
-  echo "Created $CREDENTIALS_DIR/github/.gitconfig — please edit with your settings"
 fi
 
 if [ ! -f "$CREDENTIALS_DIR/github/.git-credentials" ]; then
   cp "$SCRIPT_DIR/credentials/github/.git-credentials.example" "$CREDENTIALS_DIR/github/.git-credentials"
   chmod 600 "$CREDENTIALS_DIR/github/.git-credentials"
-  echo "Created $CREDENTIALS_DIR/github/.git-credentials — paste your GitHub classic PAT (https://github.com/settings/tokens) as the sole content"
 fi
 
 if [ ! -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
   cp "$SCRIPT_DIR/credentials/gradle/gradle.properties.example" "$CREDENTIALS_DIR/gradle/gradle.properties"
   chmod 600 "$CREDENTIALS_DIR/gradle/gradle.properties"
-  echo "Created $CREDENTIALS_DIR/gradle/gradle.properties — please edit with your repository tokens"
 fi
 
 chmod u+x ./bin/opencode_sandbox.sh
@@ -54,8 +51,11 @@ ln -sfn "$(pwd)/bin/opencode_sandbox.sh" ~/.local/bin/opencode_sandbox
 
 echo ""
 echo "Setup complete!"
-echo "Credential files are stored in: $CREDENTIALS_DIR"
-echo "Edit them with your tokens before running opencode_sandbox."
 echo ""
-echo "For Azure CLI access, symlink your ~/.azure directory:"
-echo "  ln -s ~/.azure $CREDENTIALS_DIR/azure"
+echo "Copy your existing host credentials into the sandbox:"
+echo "  cp ~/.gitconfig $CREDENTIALS_DIR/github/.gitconfig"
+echo "  gh auth token > $CREDENTIALS_DIR/github/.git-credentials"
+echo "  cp ~/.gradle/gradle.properties $CREDENTIALS_DIR/gradle/gradle.properties"
+echo "  ln -sf ~/.azure $CREDENTIALS_DIR/azure"
+echo ""
+echo "See README.md for details on each credential type."
