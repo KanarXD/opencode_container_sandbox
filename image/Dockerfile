@@ -59,7 +59,7 @@ ENV PLAYWRIGHT_MCP_HEADLESS=true
 ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
 ENV PLAYWRIGHT_MCP_BROWSER=chromium
 ENV PLAYWRIGHT_MCP_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp/playwright-output
+ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp
 
 # Create non-root user, home directories, and install Playwright skill files
 ARG GROUP_ID=1000
@@ -77,7 +77,7 @@ USER opencode
 WORKDIR /home/opencode
 
 # Install Playwright CLI skill files (must run as opencode user)
-RUN playwright-cli install --skills=agents
+RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 playwright-cli install --skills=agents
 
 # Copy the configuration file to the container
 COPY --chown=${USER_ID}:${GROUP_ID} .config /home/opencode/.config
