@@ -7,8 +7,9 @@ ARG TERRAFORM_VERSION
 ARG GRADLE_VERSION
 
 # Install all apt packages in a single layer: basic tools, Node.js/npm, headless JDK,
-# Chromium, GitHub CLI, and Azure CLI.  Adding the GitHub CLI apt repo first so that
-# everything is resolved in one apt-get install call.
+# Chromium, and GitHub CLI.  Adding the GitHub CLI apt repo first so that everything
+# is resolved in one apt-get install call.  Azure CLI is installed via pip (see below)
+# because the Debian-packaged version is too old for Python 3.13.
 RUN curl_deps="ca-certificates curl gnupg unzip" && \
     apt-get update && \
     apt-get install -y --no-install-recommends ${curl_deps} && \
@@ -21,9 +22,16 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       npm git \
       openjdk-${JAVA_VERSION}-jdk-headless \
       chromium \
-      gh \
-      azure-cli && \
+      gh jq \
+      python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Azure CLI via pip — the Debian-packaged version (2.74.0) bundles
+# antlr4-python3-runtime 4.9.2, which is incompatible with Python 3.13.
+# Version 2.77.0+ includes the fix; we pin to the exact version from versions.env.
+ARG AZURE_CLI_VERSION
+RUN pip install --break-system-packages azure-cli==${AZURE_CLI_VERSION} && \
+    pip cache purge
 
 # Java and Chromium environment
 RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-openjdk && \

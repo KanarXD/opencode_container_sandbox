@@ -138,8 +138,13 @@ ln -sf ~/.azure ~/.config/opencode-sandbox/azure
 
 If you haven't authenticated yet, run `az login` on your host first.
 
-Alternatively, copy only specific files (e.g., `azureProfile.json` and `msal_token_cache.json`) into
-`~/.config/opencode-sandbox/azure/` if you prefer not to expose the entire `~/.azure/` directory.
+Alternatively, create the directory and copy only specific files (e.g., `azureProfile.json` and `msal_token_cache.json`)
+if you prefer not to expose the entire `~/.azure/` directory:
+
+```bash
+mkdir -p ~/.config/opencode-sandbox/azure
+cp ~/.azure/azureProfile.json ~/.azure/msal_token_cache.json ~/.config/opencode-sandbox/azure/
+```
 
 ## Troubleshooting
 
