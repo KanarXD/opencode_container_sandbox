@@ -71,7 +71,11 @@ fi
 
 # Mount Azure CLI credentials if they exist (user symlinks or copies ~/.azure into this directory)
 if [ -d "$CREDENTIALS_DIR/azure" ]; then
-  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/azure:/home/opencode/.azure:ro"
+  AZURE_DIR="$(realpath "$CREDENTIALS_DIR/azure")"
+  echo "Azure mount: -v $AZURE_DIR:/home/opencode/.azure"
+  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $AZURE_DIR:/home/opencode/.azure"
+else
+  echo "Azure credentials not found at $CREDENTIALS_DIR/azure (does not exist or is not a directory)"
 fi
 
 # Mount host agent skills into ~/.claude/skills/ (avoids overriding image's ~/.agents/skills/)
@@ -89,10 +93,10 @@ if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   exit 1
 fi
 
-docker run -it --rm \
+docker run -it --rm --init \
   -u "$(id -u):1000" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
-  -v "$(pwd):/workspace" \
+  -v "$(pwd):/workspace:delegated" \
   -w "$CONTAINER_WORKDIR" \
   $CREDENTIAL_MOUNTS \
   opencode-agent:latest

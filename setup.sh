@@ -29,7 +29,6 @@ mkdir -p ~/.local/share/opencode
 # Create credential directories
 mkdir -p "$CREDENTIALS_DIR/github"
 mkdir -p "$CREDENTIALS_DIR/gradle"
-mkdir -p "$CREDENTIALS_DIR/azure"
 
 # Copy example credential files if actual files don't exist yet
 if [ ! -f "$CREDENTIALS_DIR/github/.gitconfig" ]; then
