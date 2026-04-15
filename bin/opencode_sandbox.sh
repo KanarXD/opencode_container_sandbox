@@ -93,10 +93,10 @@ if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   exit 1
 fi
 
-docker run -it --rm \
+docker run -it --rm --init \
   -u "$(id -u):1000" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
-  -v "$(pwd):/workspace" \
+  -v "$(pwd):/workspace:delegated" \
   -w "$CONTAINER_WORKDIR" \
   $CREDENTIAL_MOUNTS \
   opencode-agent:latest

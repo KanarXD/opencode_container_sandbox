@@ -23,7 +23,10 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       openjdk-${JAVA_VERSION}-jdk-headless \
       chromium \
       gh jq \
-      python3-pip && \
+      python3-pip \
+      locales && \
+    sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
+    locale-gen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Azure CLI via pip — the Debian-packaged version (2.74.0) bundles
@@ -39,6 +42,8 @@ RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture)
 ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
 ENV PATH=${JAVA_HOME}/bin:${PATH}
 ENV CHROME_BIN=/usr/bin/chromium
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 # Install Terraform and Gradle in a single layer (binary downloads)
 RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(dpkg --print-architecture).zip \
@@ -51,6 +56,10 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/ter
     ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle && \
     rm /tmp/gradle.zip
 ENV GRADLE_HOME=/opt/gradle-${GRADLE_VERSION}
+
+# JVM and Gradle performance tuning for containerised builds
+ENV JAVA_TOOL_OPTIONS="-Xmx2g"
+ENV GRADLE_OPTS="-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.welcome=never -Dorg.gradle.jvmargs=-Xmx2g"
 
 # Install all npm global packages in a single layer and clean the cache once
 ARG OPENCODE_VERSION
