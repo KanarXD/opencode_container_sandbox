@@ -46,6 +46,18 @@ if [ -n "$BRANCH_NAME" ]; then
   echo "Working on branch '$BRANCH_NAME' in worktree at $WORKTREE_PATH/"
 fi
 
+# --- Container name ---
+DIR_NAME="$(basename "$(pwd)")"
+if [ -n "$BRANCH_NAME" ]; then
+  GIT_BRANCH="$BRANCH_NAME"
+elif git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
+  GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+else
+  GIT_BRANCH="nobranch"
+fi
+CONTAINER_NAME="opencode-${DIR_NAME}-${GIT_BRANCH}"
+CONTAINER_NAME="$(echo "$CONTAINER_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g')"
+
 echo "Starting AI Sandbox with OpenCode Agent..."
 
 # --- Credential mounts ---
@@ -93,7 +105,7 @@ if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   exit 1
 fi
 
-docker run -it --rm --init \
+docker run -it --rm --init --name "$CONTAINER_NAME" \
   -u "$(id -u):1000" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
   -v "$(pwd):/workspace:delegated" \
