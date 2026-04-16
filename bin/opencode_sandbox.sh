@@ -55,7 +55,8 @@ elif git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
 else
   GIT_BRANCH="nobranch"
 fi
-CONTAINER_NAME="opencode-${DIR_NAME}-${GIT_BRANCH}"
+RANDOM_SUFFIX="$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+CONTAINER_NAME="opencode-${DIR_NAME}-${GIT_BRANCH}-${RANDOM_SUFFIX}"
 CONTAINER_NAME="$(echo "$CONTAINER_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g')"
 
 echo "Starting AI Sandbox with OpenCode Agent..."
