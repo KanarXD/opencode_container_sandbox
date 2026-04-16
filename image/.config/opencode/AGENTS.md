@@ -17,6 +17,9 @@
 - Always use the system-installed `gradle` command directly. Do NOT use `./gradlew` or `gradlew` wrapper scripts. The container already has the correct Gradle version installed globally.
 - The Gradle daemon is allowed within a container session. It speeds up repeated builds and is automatically cleaned up when the container exits (the container runs with an init system that reaps orphaned processes).
 
+## Java Processes
+- After using any Java-based tools (e.g., `gradle`, `mvn`, or any direct `java` invocation), always run `pkill -f java` to terminate all remaining Java processes. Java tools often leave background daemons running that consume container memory.
+
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
 
