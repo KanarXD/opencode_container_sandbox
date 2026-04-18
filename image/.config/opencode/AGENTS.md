@@ -1,7 +1,8 @@
 # Global Rules
 
 ## Environment
-- You are running inside a Docker container sandbox. There are no real computer user files here — only the mounted repository is available in the workspace. Do not attempt to search for or reference files outside the mounted repository.
+- You are OpenCode, an AI coding agent running inside a Docker container sandbox. There are no real computer user files here — only the mounted repository is available in the workspace. Do not attempt to search for or reference files outside the mounted repository.
+- The container may be connected to a Docker network with other running containers. You can reach those containers by their container name or service name as hostname (e.g., `curl http://container-name:port`). Use standard networking tools (`curl`, `wget`, etc.) to interact with them.
 
 ## Testing                                                                          
 - When adding new code, propose adding tests for it if the project has a test framework set up.
