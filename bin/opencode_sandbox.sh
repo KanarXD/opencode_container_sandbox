@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 NETWORK_NAME=""
-while getopts "n:" OPT; do
+DOCKER_ENABLED=""
+while getopts "n:d" OPT; do
   case "$OPT" in
     n) NETWORK_NAME="$OPTARG" ;;
-    *) echo "Usage: $0 [-n network] [branch]"; exit 1 ;;
+    d) DOCKER_ENABLED="1" ;;
+    *) echo "Usage: $0 [-n network] [-d] [branch]"; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -139,8 +141,19 @@ if [ -n "$NETWORK_NAME" ]; then
   NETWORK_ARG="--network=$NETWORK_NAME"
 fi
 
+DOCKER_ARG=""
+if [ -n "$DOCKER_ENABLED" ]; then
+  if [ ! -S /var/run/docker.sock ]; then
+    echo "Error: /var/run/docker.sock not found or is not a socket"
+    exit 1
+  fi
+  DOCKER_ARG="-v /var/run/docker.sock:/var/run/docker.sock --group-add $(stat -c '%g' /var/run/docker.sock)"
+  echo "Docker access enabled (mounting host Docker socket)"
+fi
+
 docker run -it --rm --name "$CONTAINER_NAME" \
   $NETWORK_ARG \
+  $DOCKER_ARG \
   --pid="container:$INFRA_CONTAINER_NAME" \
   --ipc="container:$INFRA_CONTAINER_NAME" \
   -u "$(id -u):1000" \

@@ -67,9 +67,9 @@ docker build \
 ### Run the sandbox
 
 ```bash
-opencode_sandbox [-n network] [branch]
+opencode_sandbox [-n network] [-d] [branch]
 # or directly:
-bash bin/opencode_sandbox.sh [-n network] [branch]
+bash bin/opencode_sandbox.sh [-n network] [-d] [branch]
 ```
 
 ### Run the sandbox on a specific Docker network
@@ -83,6 +83,26 @@ bash bin/opencode_sandbox.sh -n my-network
 This passes `--network=my-network` to the `docker run` command, attaching the
 agent container to the specified Docker network. Useful when the sandbox needs
 to reach services running in other containers on a custom network.
+
+### Run the sandbox with Docker access
+
+```bash
+opencode_sandbox -d
+# or directly:
+bash bin/opencode_sandbox.sh -d
+```
+
+This mounts the host's Docker socket (`/var/run/docker.sock`) into the container
+and grants the container user access to the socket's group. The agent can run
+Docker commands (build, run, pull, exec, etc.) but destructive commands (image/
+volume/network deletion, prune), `docker push`, `docker login`, and
+`docker logout` are denied by the OpenCode permission rules.
+
+The `-d` flag can be combined with `-n` and a branch name:
+
+```bash
+opencode_sandbox -d -n my-network my-feature
+```
 
 ### Run the sandbox on a separate branch (git worktree)
 

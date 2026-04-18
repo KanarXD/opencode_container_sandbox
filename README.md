@@ -39,6 +39,23 @@ The `-n` flag can be combined with a branch name:
 opencode_sandbox -n my-network my-feature
 ```
 
+### run the sandbox with Docker access
+
+Use the `-d` flag to mount the host's Docker socket into the container, allowing
+OpenCode to run Docker commands (build, run, pull, etc.). Destructive commands
+(`docker rmi`, `docker image prune`, `docker system prune`, etc.), `docker push`,
+`docker login`, and `docker logout` are denied by the agent's permission rules.
+
+```bash
+opencode_sandbox -d
+```
+
+The `-d` flag can be combined with other flags:
+
+```bash
+opencode_sandbox -d -n my-network my-feature
+```
+
 ### run the sandbox on a separate branch (git worktree)
 
 Pass a branch name as an argument to automatically create a
