@@ -42,9 +42,9 @@ opencode_sandbox -n my-network my-feature
 ### run the sandbox with Docker access
 
 Use the `-d` flag to mount the host's Docker socket into the container, allowing
-OpenCode to run Docker commands (build, run, pull, etc.). Destructive commands
-(`docker rmi`, `docker image prune`, `docker system prune`, etc.), `docker push`,
-`docker login`, and `docker logout` are denied by the agent's permission rules.
+OpenCode to run Docker commands. Read-only commands (`docker ps`, `docker images`,
+`docker logs`, `docker inspect`, etc.) are auto-allowed; all other Docker
+commands require user approval before execution.
 
 ```bash
 opencode_sandbox -d

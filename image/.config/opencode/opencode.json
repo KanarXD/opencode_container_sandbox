@@ -19,18 +19,15 @@
       "az * set-policy *": "deny",
       "az login*": "deny",
       "az logout*": "deny",
-      "docker rmi *": "deny",
-      "docker image rm *": "deny",
-      "docker image prune *": "deny",
-      "docker system prune *": "deny",
-      "docker builder prune *": "deny",
-      "docker network rm *": "deny",
-      "docker network prune *": "deny",
-      "docker volume rm *": "deny",
-      "docker volume prune *": "deny",
-      "docker login*": "deny",
-      "docker logout*": "deny",
-      "docker push *": "deny"
+      "docker ps*": "allow",
+      "docker images*": "allow",
+      "docker image ls*": "allow",
+      "docker logs *": "allow",
+      "docker inspect *": "allow",
+      "docker info*": "allow",
+      "docker version*": "allow",
+      "docker stats*": "allow",
+      "docker *": "ask"
     }
   }
 }
