@@ -94,14 +94,15 @@ When the sandbox starts, it launches (or reuses) a long-lived **infra container*
 (`opencode-infra`) based on `busybox`. The agent container joins this infra
 container's PID and IPC namespaces (`--pid=container:opencode-infra`,
 `--ipc=container:opencode-infra`). This enables SQLite locking to work correctly
-across multiple concurrent sandbox containers sharing the same state volume.
+across multiple concurrent sandbox containers sharing the same state directory.
 
-### Shared state volume
+### Shared state directory
 
-A Docker named volume `opencode-agent-state` is created on first run and mounted
-at `/home/opencode/.local/share/opencode` inside every container. This persists
-OpenCode state (sessions, history, etc.) across container restarts. The user's
-`auth.json` is mounted read-only on top of this volume from the host.
+A host directory `~/.local/share/opencode-sandbox/` is bind-mounted at
+`/home/opencode/.local/share/opencode` inside every container. This persists
+OpenCode state (sessions, history, etc.) across container restarts and survives
+Docker uninstallation. The user's `auth.json` is mounted read-only on top of
+this directory from the host.
 
 ### Prerequisites
 

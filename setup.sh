@@ -25,6 +25,7 @@ docker build \
 
 # Create local directories for opencode data and configuration if they don't exist
 mkdir -p ~/.local/share/opencode
+mkdir -p ~/.local/share/opencode-sandbox
 
 # Create credential directories
 mkdir -p "$CREDENTIALS_DIR/github"

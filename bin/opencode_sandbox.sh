@@ -62,13 +62,10 @@ CONTAINER_NAME="$(echo "$CONTAINER_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[
 # --- Infra container for shared PID/IPC namespace (enables SQLite locking across containers) ---
 BUSYBOX_IMAGE="busybox:1.37.0"
 INFRA_CONTAINER_NAME="opencode-infra"
-STATE_VOLUME_NAME="opencode-agent-state"
+STATE_DIR="$HOME/.local/share/opencode-sandbox"
 
-# Create named volume for shared OpenCode state if it doesn't exist
-if ! docker volume inspect "$STATE_VOLUME_NAME" > /dev/null 2>&1; then
-  echo "Creating shared state volume '$STATE_VOLUME_NAME'..."
-  docker volume create "$STATE_VOLUME_NAME"
-fi
+# Create shared state directory on host if it doesn't exist
+mkdir -p "$STATE_DIR"
 
 # Start infra container if not already running
 if ! docker inspect --format '{{.State.Running}}' "$INFRA_CONTAINER_NAME" 2>/dev/null | grep -q true; then
@@ -132,7 +129,7 @@ docker run -it --rm --name "$CONTAINER_NAME" \
   --pid="container:$INFRA_CONTAINER_NAME" \
   --ipc="container:$INFRA_CONTAINER_NAME" \
   -u "$(id -u):1000" \
-  -v "$STATE_VOLUME_NAME:/home/opencode/.local/share/opencode" \
+  -v "$STATE_DIR:/home/opencode/.local/share/opencode" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
   -v "$(pwd):/workspace:delegated" \
   -w "$CONTAINER_WORKDIR" \
