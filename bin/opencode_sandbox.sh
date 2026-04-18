@@ -3,11 +3,24 @@
 NETWORK_NAME=""
 DOCKER_ENABLED=""
 AZURE_ENABLED=""
-while getopts "n:da" OPT; do
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  echo "Usage: $0 [-n network] [-d] [-a] [branch]"
+  echo ""
+  echo "Options:"
+  echo "  -n NETWORK   Attach container to a Docker network"
+  echo "  -d           Mount host Docker socket into container"
+  echo "  -a           Mount Azure CLI credentials into container"
+  echo "  branch       Create/reuse a git worktree for the given branch"
+  exit 0
+fi
+
+while getopts "n:dah" OPT; do
   case "$OPT" in
     n) NETWORK_NAME="$OPTARG" ;;
     d) DOCKER_ENABLED="1" ;;
     a) AZURE_ENABLED="1" ;;
+    h) "$0" --help; exit 0 ;;
     *) echo "Usage: $0 [-n network] [-d] [-a] [branch]"; exit 1 ;;
   esac
 done
