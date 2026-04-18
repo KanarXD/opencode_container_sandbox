@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+NETWORK_NAME=""
+while getopts "n:" OPT; do
+  case "$OPT" in
+    n) NETWORK_NAME="$OPTARG" ;;
+    *) echo "Usage: $0 [-n network] [branch]"; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
 BRANCH_NAME="${1:-}"
 CREDENTIALS_DIR="$HOME/.config/opencode-sandbox"
 WORKTREE_DIR=".worktrees"
@@ -125,7 +134,13 @@ if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   exit 1
 fi
 
+NETWORK_ARG=""
+if [ -n "$NETWORK_NAME" ]; then
+  NETWORK_ARG="--network=$NETWORK_NAME"
+fi
+
 docker run -it --rm --name "$CONTAINER_NAME" \
+  $NETWORK_ARG \
   --pid="container:$INFRA_CONTAINER_NAME" \
   --ipc="container:$INFRA_CONTAINER_NAME" \
   -u "$(id -u):1000" \

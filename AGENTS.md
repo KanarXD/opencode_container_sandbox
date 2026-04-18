@@ -66,10 +66,22 @@ docker build \
 ### Run the sandbox
 
 ```bash
-opencode_sandbox
+opencode_sandbox [-n network] [branch]
 # or directly:
-bash bin/opencode_sandbox.sh
+bash bin/opencode_sandbox.sh [-n network] [branch]
 ```
+
+### Run the sandbox on a specific Docker network
+
+```bash
+opencode_sandbox -n my-network
+# or directly:
+bash bin/opencode_sandbox.sh -n my-network
+```
+
+This passes `--network=my-network` to the `docker run` command, attaching the
+agent container to the specified Docker network. Useful when the sandbox needs
+to reach services running in other containers on a custom network.
 
 ### Run the sandbox on a separate branch (git worktree)
 
@@ -77,6 +89,12 @@ bash bin/opencode_sandbox.sh
 opencode_sandbox my-feature
 # or directly:
 bash bin/opencode_sandbox.sh my-feature
+```
+
+The `-n` flag can be combined with a branch name:
+
+```bash
+opencode_sandbox -n my-network my-feature
 ```
 
 This creates a git worktree at `.worktrees/my-feature/` inside the repository

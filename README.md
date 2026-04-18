@@ -23,6 +23,22 @@ bash setup.sh
 opencode_sandbox
 ```
 
+### run the sandbox on a specific Docker network
+
+Use the `-n` flag to attach the container to a Docker network. This is useful
+when the sandbox needs to communicate with services running in other containers
+on a custom network.
+
+```bash
+opencode_sandbox -n my-network
+```
+
+The `-n` flag can be combined with a branch name:
+
+```bash
+opencode_sandbox -n my-network my-feature
+```
+
 ### run the sandbox on a separate branch (git worktree)
 
 Pass a branch name as an argument to automatically create a
