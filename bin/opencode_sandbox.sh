@@ -75,7 +75,7 @@ if ! docker inspect --format '{{.State.Running}}' "$INFRA_CONTAINER_NAME" 2>/dev
   # Remove stopped infra container if it exists
   docker rm "$INFRA_CONTAINER_NAME" 2>/dev/null || true
   echo "Starting infra container '$INFRA_CONTAINER_NAME' for shared PID/IPC namespace..."
-  docker run -d --rm --init \
+  docker run -d --rm --init --ipc=shareable \
     --name "$INFRA_CONTAINER_NAME" \
     "$BUSYBOX_IMAGE" \
     sleep infinity
