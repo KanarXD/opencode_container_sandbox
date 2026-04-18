@@ -22,6 +22,7 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       npm git \
       openjdk-${JAVA_VERSION}-jdk-headless \
       chromium \
+      gcc libc6-dev \
       gh jq \
       python3-pip \
       locales && \
@@ -92,6 +93,15 @@ RUN groupadd -g ${GROUP_ID} opencode && \
 USER opencode
 
 WORKDIR /home/opencode
+
+# Install Rust toolchain and cargo tools
+ARG RUST_VERSION
+ENV PATH="/home/opencode/.cargo/bin:${PATH}"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} && \
+    rustup target add wasm32-unknown-unknown && \
+    cargo install cargo-binstall && \
+    cargo binstall wasm-bindgen-cli wasm-opt jwt-cli --no-confirm && \
+    rm -rf /home/opencode/.cargo/registry /home/opencode/.cargo/git
 
 # Install Playwright CLI skill files (must run as opencode user)
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 playwright-cli install --skills=agents

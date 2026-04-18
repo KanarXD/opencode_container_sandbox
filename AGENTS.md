@@ -18,7 +18,7 @@ image/                       # Docker image definition
   .config/opencode/          #   OpenCode runtime config and container AGENTS.md
     opencode.json            #     OpenCode agent configuration
     AGENTS.md                #     Container-side agent instructions
-  Dockerfile                 #   Debian-based image with Java, Node, Gradle, Angular CLI, gh, Azure CLI, Chromium, Playwright CLI
+  Dockerfile                 #   Debian-based image with Java, Node, Gradle, Angular CLI, gh, Azure CLI, Rust, Chromium, Playwright CLI
 versions.env                 # Pinned tool/base image versions (single source of truth)
 setup.sh                     # One-time setup: builds image, creates credentials
 .gitignore                   # Excludes .idea/ (JetBrains IDE files)
@@ -60,6 +60,7 @@ docker build \
   --build-arg AZURE_CLI_VERSION="$AZURE_CLI_VERSION" \
   --build-arg OPENCODE_VERSION="$OPENCODE_VERSION" \
   --build-arg PLAYWRIGHT_CLI_VERSION="$PLAYWRIGHT_CLI_VERSION" \
+  --build-arg RUST_VERSION="$RUST_VERSION" \
   -t opencode-agent ./image
 ```
 
@@ -268,7 +269,7 @@ All tool and base image versions are defined in `versions.env`. Update the
 relevant variable and rebuild with `bash setup.sh`. Available variables:
 `DEBIAN_VERSION`, `JAVA_VERSION`, `TERRAFORM_VERSION`, `GRADLE_VERSION`,
 `ANGULAR_CLI_VERSION`, `AZURE_CLI_VERSION`, `OPENCODE_VERSION`,
-`PLAYWRIGHT_CLI_VERSION`.
+`PLAYWRIGHT_CLI_VERSION`, `RUST_VERSION`.
 
 ## Git Workflow
 
