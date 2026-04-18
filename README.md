@@ -74,7 +74,7 @@ pages. OpenCode discovers this capability automatically via the built-in
 
 ### Changing the Playwright CLI version
 
-Update the `PLAYWRIGHT_CLI_VERSION` ARG in `image/Dockerfile` and rebuild.
+Update `PLAYWRIGHT_CLI_VERSION` in `versions.env` and rebuild with `bash setup.sh`.
 
 ## Credentials
 
@@ -86,11 +86,11 @@ into the Docker image.
 
 | Type | File | Purpose |
 |---|---|---|
-| GitHub PAT | `github/.git-credentials` | Passed as `GH_TOKEN` env var for `gh` CLI authentication |
+| GitHub PAT | `github/.git-credentials` | Read at startup and passed as `GH_TOKEN` env var (file itself is not mounted) |
 | Git config | `github/.gitconfig` | Git credential helper configuration |
 | Nexus/Artifactory | `gradle/gradle.properties` | Resolve dependencies from private Maven repos |
 | Azure Artifacts | `gradle/gradle.properties` | Resolve dependencies from Azure Artifacts Maven feeds |
-| Azure CLI | `azure/` | Symlink to `~/.azure/` for read-only `az` CLI access to Azure resources |
+| Azure CLI | `azure/` | Symlink to `~/.azure/` for `az` CLI access to Azure resources (mounted read-write so the CLI can refresh token caches) |
 
 ### Setup
 
@@ -129,7 +129,7 @@ organization → User Settings → Personal Access Tokens.
 
 #### Azure CLI
 
-Symlinks your Azure login session into the sandbox for read-only access to Azure resources (Monitor, Insights, Log
+Symlinks your Azure login session into the sandbox for access to Azure resources (Monitor, Insights, Log
 Analytics, etc.):
 
 ```bash
@@ -145,6 +145,19 @@ if you prefer not to expose the entire `~/.azure/` directory:
 mkdir -p ~/.config/opencode-sandbox/azure
 cp ~/.azure/azureProfile.json ~/.azure/msal_token_cache.json ~/.config/opencode-sandbox/azure/
 ```
+
+## Shared State
+
+The sandbox maintains its own state directory at `~/.local/share/opencode-sandbox/` on the host, **separate** from the
+host's OpenCode state at `~/.local/share/opencode/`. Sessions, history, and other OpenCode data created inside the
+sandbox do not interfere with your host installation and vice versa.
+
+This directory is mounted into every container, so state persists across container restarts. When multiple sandbox
+containers run concurrently, they share this directory. A long-lived infra container (`opencode-infra`) provides shared
+PID and IPC namespaces to ensure correct SQLite locking between containers.
+
+Only `auth.json` is taken from the host's OpenCode installation (`~/.local/share/opencode/auth.json`), and it is mounted
+read-only.
 
 ## Troubleshooting
 
