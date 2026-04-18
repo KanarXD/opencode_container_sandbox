@@ -46,6 +46,41 @@ if [ -n "$BRANCH_NAME" ]; then
   echo "Working on branch '$BRANCH_NAME' in worktree at $WORKTREE_PATH/"
 fi
 
+# --- Container name ---
+DIR_NAME="$(basename "$(pwd)")"
+if [ -n "$BRANCH_NAME" ]; then
+  GIT_BRANCH="$BRANCH_NAME"
+elif git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
+  GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+else
+  GIT_BRANCH="nobranch"
+fi
+RANDOM_SUFFIX="$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+CONTAINER_NAME="opencode-${DIR_NAME}-${GIT_BRANCH}-${RANDOM_SUFFIX}"
+CONTAINER_NAME="$(echo "$CONTAINER_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g')"
+
+# --- Infra container for shared PID/IPC namespace (enables SQLite locking across containers) ---
+BUSYBOX_IMAGE="busybox:1.37.0"
+INFRA_CONTAINER_NAME="opencode-infra"
+STATE_VOLUME_NAME="opencode-agent-state"
+
+# Create named volume for shared OpenCode state if it doesn't exist
+if ! docker volume inspect "$STATE_VOLUME_NAME" > /dev/null 2>&1; then
+  echo "Creating shared state volume '$STATE_VOLUME_NAME'..."
+  docker volume create "$STATE_VOLUME_NAME"
+fi
+
+# Start infra container if not already running
+if ! docker inspect --format '{{.State.Running}}' "$INFRA_CONTAINER_NAME" 2>/dev/null | grep -q true; then
+  # Remove stopped infra container if it exists
+  docker rm "$INFRA_CONTAINER_NAME" 2>/dev/null || true
+  echo "Starting infra container '$INFRA_CONTAINER_NAME' for shared PID/IPC namespace..."
+  docker run -d --rm --init \
+    --name "$INFRA_CONTAINER_NAME" \
+    "$BUSYBOX_IMAGE" \
+    sleep infinity
+fi
+
 echo "Starting AI Sandbox with OpenCode Agent..."
 
 # --- Credential mounts ---
@@ -93,8 +128,11 @@ if [ ! -f "$HOME/.local/share/opencode/auth.json" ]; then
   exit 1
 fi
 
-docker run -it --rm --init \
+docker run -it --rm --name "$CONTAINER_NAME" \
+  --pid="container:$INFRA_CONTAINER_NAME" \
+  --ipc="container:$INFRA_CONTAINER_NAME" \
   -u "$(id -u):1000" \
+  -v "$STATE_VOLUME_NAME:/home/opencode/.local/share/opencode" \
   -v "$HOME/.local/share/opencode/auth.json:/home/opencode/.local/share/opencode/auth.json:ro" \
   -v "$(pwd):/workspace:delegated" \
   -w "$CONTAINER_WORKDIR" \
