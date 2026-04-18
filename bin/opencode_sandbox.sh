@@ -2,11 +2,13 @@
 
 NETWORK_NAME=""
 DOCKER_ENABLED=""
-while getopts "n:d" OPT; do
+AZURE_ENABLED=""
+while getopts "n:da" OPT; do
   case "$OPT" in
     n) NETWORK_NAME="$OPTARG" ;;
     d) DOCKER_ENABLED="1" ;;
-    *) echo "Usage: $0 [-n network] [-d] [branch]"; exit 1 ;;
+    a) AZURE_ENABLED="1" ;;
+    *) echo "Usage: $0 [-n network] [-d] [-a] [branch]"; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -112,13 +114,15 @@ if [ -f "$CREDENTIALS_DIR/gradle/gradle.properties" ]; then
   CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $CREDENTIALS_DIR/gradle/gradle.properties:/home/opencode/.gradle/gradle.properties:ro"
 fi
 
-# Mount Azure CLI credentials if they exist (user symlinks or copies ~/.azure into this directory)
-if [ -d "$CREDENTIALS_DIR/azure" ]; then
-  AZURE_DIR="$(realpath "$CREDENTIALS_DIR/azure")"
-  echo "Azure mount: -v $AZURE_DIR:/home/opencode/.azure"
-  CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $AZURE_DIR:/home/opencode/.azure"
-else
-  echo "Azure credentials not found at $CREDENTIALS_DIR/azure (does not exist or is not a directory)"
+# Mount Azure CLI credentials only when -a flag is passed
+if [ -n "$AZURE_ENABLED" ]; then
+  if [ -d "$CREDENTIALS_DIR/azure" ]; then
+    AZURE_DIR="$(realpath "$CREDENTIALS_DIR/azure")"
+    echo "Azure mount: -v $AZURE_DIR:/home/opencode/.azure"
+    CREDENTIAL_MOUNTS="$CREDENTIAL_MOUNTS -v $AZURE_DIR:/home/opencode/.azure"
+  else
+    echo "Warning: -a flag passed but Azure credentials not found at $CREDENTIALS_DIR/azure"
+  fi
 fi
 
 # Mount host agent skills into ~/.claude/skills/ (avoids overriding image's ~/.agents/skills/)

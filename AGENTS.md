@@ -67,9 +67,9 @@ docker build \
 ### Run the sandbox
 
 ```bash
-opencode_sandbox [-n network] [-d] [branch]
+opencode_sandbox [-n network] [-d] [-a] [branch]
 # or directly:
-bash bin/opencode_sandbox.sh [-n network] [-d] [branch]
+bash bin/opencode_sandbox.sh [-n network] [-d] [-a] [branch]
 ```
 
 ### Run the sandbox on a specific Docker network
@@ -98,10 +98,29 @@ Docker commands. Read-only commands (`docker ps`, `docker images`, `docker logs`
 `docker inspect`, etc.) are auto-allowed; all other Docker commands require user
 approval before execution.
 
-The `-d` flag can be combined with `-n` and a branch name:
+The `-d` flag can be combined with `-n`, `-a`, and a branch name:
 
 ```bash
-opencode_sandbox -d -n my-network my-feature
+opencode_sandbox -d -a -n my-network my-feature
+```
+
+### Run the sandbox with Azure CLI access
+
+```bash
+opencode_sandbox -a
+# or directly:
+bash bin/opencode_sandbox.sh -a
+```
+
+This mounts Azure CLI credentials (`~/.config/opencode-sandbox/azure`) into the
+container, allowing the agent to run `az` commands. Without this flag, Azure
+credentials are not mounted even if they exist on the host. The mount is
+read-write because the Azure CLI needs to update token caches.
+
+The `-a` flag can be combined with `-d`, `-n`, and a branch name:
+
+```bash
+opencode_sandbox -a -n my-network my-feature
 ```
 
 ### Run the sandbox on a separate branch (git worktree)

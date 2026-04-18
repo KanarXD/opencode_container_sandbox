@@ -39,6 +39,22 @@ The `-n` flag can be combined with a branch name:
 opencode_sandbox -n my-network my-feature
 ```
 
+### run the sandbox with Azure CLI access
+
+Use the `-a` flag to mount your Azure CLI credentials into the container,
+allowing OpenCode to run `az` commands. Without this flag, Azure credentials
+are not mounted even if they exist on the host.
+
+```bash
+opencode_sandbox -a
+```
+
+The `-a` flag can be combined with other flags:
+
+```bash
+opencode_sandbox -a -d -n my-network my-feature
+```
+
 ### run the sandbox with Docker access
 
 Use the `-d` flag to mount the host's Docker socket into the container, allowing
@@ -163,7 +179,7 @@ organization → User Settings → Personal Access Tokens.
 #### Azure CLI
 
 Symlinks your Azure login session into the sandbox for access to Azure resources (Monitor, Insights, Log
-Analytics, etc.):
+Analytics, etc.). Azure credentials are only mounted when the `-a` flag is passed to `opencode_sandbox`:
 
 ```bash
 ln -sf ~/.azure ~/.config/opencode-sandbox/azure
