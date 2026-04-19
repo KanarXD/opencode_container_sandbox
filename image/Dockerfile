@@ -30,6 +30,7 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       gh jq \
       python3-pip \
       docker-ce-cli \
+      docker-compose-plugin \
       locales \
       xvfb mesa-vulkan-drivers \
       libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev \
