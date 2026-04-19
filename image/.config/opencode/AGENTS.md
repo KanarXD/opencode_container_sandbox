@@ -26,6 +26,9 @@
 - When changing something that could be useful for AI agents (e.g., project structure, conventions, build commands, architecture decisions), update `AGENTS.md` to reflect the change.
 - When changing something that could be useful for human users (e.g., setup instructions, usage, configuration options), update `README.md` to reflect the change.
 
+## Docker
+- When running Docker commands that are auto-allowed (e.g., `docker ps`, `docker images`, `docker logs`, `docker inspect`, `docker info`, `docker version`, `docker stats`), always run each command as a separate bash invocation. Do NOT combine them with other commands using `;`, `&&`, `|`, or other operators. This ensures the permission rules in `opencode.json` match correctly.
+
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
 
