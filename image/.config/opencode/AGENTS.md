@@ -29,3 +29,7 @@
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
 
+## Desktop Applications (Bevy, GUI apps)
+- The container includes Xvfb, Mesa Vulkan (lavapipe), xdotool, and ImageMagick for running and interacting with desktop GUI applications headlessly.
+- When working with desktop GUI applications, use the `desktop-app-interaction` skill for detailed instructions on launching apps, taking screenshots, and sending mouse/keyboard input.
+

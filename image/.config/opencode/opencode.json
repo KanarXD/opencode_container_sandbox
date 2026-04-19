@@ -3,6 +3,7 @@
   "enabled_providers": [
     "github-copilot"
   ],
+  "autoupdate": false,
   "share": "disabled",
   "model": "github-copilot/claude-opus-4.6",
   "small_model": "github-copilot/gpt-5.4-mini",

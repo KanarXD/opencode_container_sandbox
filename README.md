@@ -125,6 +125,30 @@ pages. OpenCode discovers this capability automatically via the built-in
 
 Update `PLAYWRIGHT_CLI_VERSION` in `versions.env` and rebuild with `bash setup.sh`.
 
+## Desktop Applications
+
+The sandbox can run desktop GUI applications (e.g., Rust Bevy, Java Swing, GTK)
+headlessly using a virtual X11 display and software Vulkan rendering. OpenCode
+can take screenshots of the running app and interact with it via synthetic mouse
+clicks and keyboard input.
+
+### How it works
+
+- **Xvfb** provides a virtual X11 framebuffer — no physical display or GPU needed
+- **Mesa lavapipe** provides a CPU-based Vulkan implementation for wgpu/Bevy apps
+- **xdotool** sends mouse clicks and keyboard input to the running app
+- **ImageMagick** (`import`) captures screenshots of the virtual display
+
+### Included dependencies
+
+Bevy and other GUI frameworks require various system libraries that are
+pre-installed in the image:
+
+- X11 development libraries (`libx11-dev`, `libxcursor-dev`, `libxrandr-dev`,
+  `libxi-dev`, `libxinerama-dev`)
+- ALSA audio (`libasound2-dev`)
+- udev input (`libudev-dev`)
+
 ## Credentials
 
 The sandbox supports read-only access to private repositories via tokens. Credentials are stored on your host at

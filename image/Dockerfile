@@ -30,7 +30,11 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       gh jq \
       python3-pip \
       docker-ce-cli \
-      locales && \
+      locales \
+      xvfb mesa-vulkan-drivers \
+      libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev \
+      libasound2-dev libudev-dev \
+      xdotool imagemagick && \
     sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
     locale-gen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -48,6 +52,7 @@ RUN ln -s /usr/lib/jvm/java-${JAVA_VERSION}-openjdk-$(dpkg --print-architecture)
 ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
 ENV PATH=${JAVA_HOME}/bin:${PATH}
 ENV CHROME_BIN=/usr/bin/chromium
+ENV DISPLAY=:99
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
@@ -110,6 +115,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 
 # Install Playwright CLI skill files (must run as opencode user)
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 playwright-cli install --skills=agents
+
+# Install desktop-app-interaction skill files
+COPY --chown=${USER_ID}:${GROUP_ID} .agents/skills/desktop-app-interaction /home/opencode/.agents/skills/desktop-app-interaction
 
 # Copy the configuration file to the container
 COPY --chown=${USER_ID}:${GROUP_ID} .config /home/opencode/.config

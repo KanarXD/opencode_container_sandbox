@@ -286,6 +286,28 @@ automation. OpenCode discovers it automatically via the `playwright-cli` skill
 - Use `playwright-cli click <ref>` to interact with elements from the snapshot.
 - The version is pinned via `PLAYWRIGHT_CLI_VERSION` ARG in the Dockerfile.
 
+### Desktop Applications (Bevy, GUI apps)
+
+The Docker image includes Xvfb, Mesa Vulkan software rendering (lavapipe),
+xdotool, and ImageMagick for running and interacting with desktop GUI
+applications headlessly. This enables OpenCode to build, launch, screenshot,
+and interact with apps that create windows (e.g., Rust Bevy, Java Swing, GTK).
+OpenCode discovers this capability automatically via the `desktop-app-interaction`
+skill (installed at `~/.agents/skills/desktop-app-interaction/SKILL.md`).
+
+- **Virtual display**: Xvfb provides an X11 framebuffer at `:99`
+  (`DISPLAY=:99` is set in the image). Start it before launching a GUI app:
+  `Xvfb :99 -screen 0 1280x720x24 &`
+- **Software Vulkan**: Mesa lavapipe provides a CPU-based Vulkan ICD — no GPU
+  required. Bevy and other Vulkan/wgpu apps render via software.
+- **Screenshots**: `import -window root /tmp/screenshot.png` (ImageMagick)
+  captures the virtual display.
+- **Interaction**: `xdotool` sends synthetic mouse clicks and keyboard input
+  to X11 windows (coordinate-based, not DOM-based).
+- **Bevy dependencies**: X11 dev libraries (`libx11-dev`, `libxcursor-dev`,
+  `libxrandr-dev`, `libxi-dev`, `libxinerama-dev`), ALSA (`libasound2-dev`),
+  and udev (`libudev-dev`) are pre-installed.
+
 ### Adding a new tool to the Docker image
 
 1. Add a version variable to `versions.env`
