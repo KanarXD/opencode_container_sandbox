@@ -35,6 +35,7 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       xvfb mesa-vulkan-drivers \
       libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev \
       libasound2-dev libudev-dev \
+      mold \
       xdotool imagemagick && \
     sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
     locale-gen && \
@@ -113,6 +114,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
     cargo install cargo-binstall && \
     cargo binstall wasm-bindgen-cli wasm-opt jwt-cli --no-confirm && \
     rm -rf /home/opencode/.cargo/registry /home/opencode/.cargo/git
+
+# Use mold linker for faster Rust linking
+COPY --chown=${USER_ID}:${GROUP_ID} .cargo/config.toml /home/opencode/.cargo/config.toml
 
 # Install Playwright CLI skill files (must run as opencode user)
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 playwright-cli install --skills=agents
