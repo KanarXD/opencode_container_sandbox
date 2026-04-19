@@ -33,7 +33,7 @@ RUN curl_deps="ca-certificates curl gnupg unzip" && \
       docker-compose-plugin \
       locales \
       xvfb mesa-vulkan-drivers \
-      libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev \
+      libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libxkbcommon-x11-0 \
       libasound2-dev libudev-dev \
       mold \
       xdotool imagemagick && \

@@ -1,7 +1,7 @@
 ---
 name: desktop-app-interaction
 description: Run, screenshot, and interact with desktop GUI applications (Bevy, Swing, GTK, etc.) using Xvfb, xdotool, and ImageMagick.
-allowed-tools: Bash(Xvfb:*) Bash(xdotool:*) Bash(import:*) Bash(xwininfo:*) Bash(pkill:*) Bash(cargo:*) Bash(java:*)
+allowed-tools: Bash(Xvfb:*) Bash(xdotool:*) Bash(import:*) Bash(xwininfo:*) Bash(xdpyinfo:*) Bash(pkill:*) Bash(cargo:*) Bash(java:*) Bash(python:*)
 ---
 
 # Desktop App Interaction
@@ -14,7 +14,7 @@ xdotool (mouse/keyboard input), and ImageMagick (screenshots).
 
 ```bash
 # 1. Start the virtual display
-Xvfb :99 -screen 0 1280x720x24 &
+Xvfb :99 -ac -noreset -screen 0 1280x720x24 &disown
 
 # 2. Launch the app in the background
 cargo run &
@@ -25,7 +25,9 @@ sleep 3
 # 4. Take a screenshot to see what rendered
 import -window root /tmp/screenshot.png
 
-# 5. View the screenshot (use the Read tool on the image file)
+# 5. View the screenshot
+# IMPORTANT: Use a separate Read tool call on /tmp/screenshot.png to view it.
+# Do not use bash commands like `cat` — the Read tool renders images natively.
 
 # 6. Interact with the app
 xdotool mousemove 640 360 click 1
@@ -38,19 +40,44 @@ pkill -f "cargo run" || true
 pkill Xvfb || true
 ```
 
+## Launching Different App Types
+
+The Quick Start above uses `cargo run` (Rust/Bevy), but any GUI app works:
+
+```bash
+# Java Swing / JavaFX
+java -jar myapp.jar &
+APP_PID=$!
+
+# Python (Tkinter, PyQt, GTK)
+python app.py &
+APP_PID=$!
+
+# Compiled binary
+./my-gui-app &
+APP_PID=$!
+
+# Node.js (Electron, etc.)
+npx electron . &
+APP_PID=$!
+```
+
+After launching, use the same screenshot and interaction workflow described
+in the Quick Start and Iterative Development Loop sections.
+
 ## Display Management
 
 `DISPLAY=:99` is already set in the container environment.
 
 ```bash
 # Start Xvfb with default 1280x720 resolution
-Xvfb :99 -screen 0 1280x720x24 &
+Xvfb :99 -ac -noreset -screen 0 1280x720x24 &disown
 
 # Start with a larger resolution
-Xvfb :99 -screen 0 1920x1080x24 &
+Xvfb :99 -ac -noreset -screen 0 1920x1080x24 &disown
 
 # Start with a smaller resolution (faster rendering)
-Xvfb :99 -screen 0 800x600x24 &
+Xvfb :99 -ac -noreset -screen 0 800x600x24 &disown
 
 # Stop the virtual display
 pkill Xvfb
@@ -198,7 +225,7 @@ This is the recommended workflow for developing and testing GUI applications.
 
 ```bash
 # 1. Start the virtual display (only once per session)
-Xvfb :99 -screen 0 1280x720x24 &
+Xvfb :99 -ac -noreset -screen 0 1280x720x24 &disown
 
 # 2. Build and launch the app
 cargo run &
@@ -207,7 +234,7 @@ sleep 3
 
 # 3. Take initial screenshot
 import -window root /tmp/step1.png
-# View with Read tool to see the initial state
+# IMPORTANT: Use the Read tool on /tmp/step1.png to view it
 
 # 4. Interact (e.g., click a button)
 xdotool mousemove 400 300 click 1
@@ -215,7 +242,7 @@ sleep 1
 
 # 5. Screenshot to verify the interaction
 import -window root /tmp/step2.png
-# View with Read tool to verify
+# IMPORTANT: Use the Read tool on /tmp/step2.png to view it
 
 # 6. More interactions as needed...
 xdotool type "test input"
@@ -254,6 +281,21 @@ done
 import -window root /tmp/screenshot.png
 ```
 
+## Cleanup
+
+Always kill Xvfb and any launched app processes when you are done. Leaving
+them running wastes container memory and can interfere with subsequent runs.
+
+```bash
+# Kill the app
+kill $APP_PID 2>/dev/null || true
+pkill -f "cargo run" || true
+pkill -f "java" || true
+
+# Kill the virtual display
+pkill Xvfb || true
+```
+
 ## Troubleshooting
 
 ### Black or empty screenshot
@@ -267,7 +309,7 @@ waiting pattern above.
 Xvfb is not running. Start it first:
 
 ```bash
-Xvfb :99 -screen 0 1280x720x24 &
+Xvfb :99 -ac -noreset -screen 0 1280x720x24 &disown
 ```
 
 ### Vulkan/wgpu errors
