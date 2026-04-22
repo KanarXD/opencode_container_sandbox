@@ -168,7 +168,12 @@ if [ -n "$DOCKER_ENABLED" ]; then
     echo "Error: /var/run/docker.sock not found or is not a socket"
     exit 1
   fi
-  DOCKER_ARG="-v /var/run/docker.sock:/var/run/docker.sock --group-add $(stat -c '%g' /var/run/docker.sock)"
+  if [ "$(uname)" = "Linux" ]; then
+    DOCKER_SOCK_GID="$(stat -c '%g' /var/run/docker.sock)"
+    DOCKER_ARG="-v /var/run/docker.sock:/var/run/docker.sock --group-add $DOCKER_SOCK_GID"
+  else
+    DOCKER_ARG="-v /var/run/docker.sock:/var/run/docker.sock"
+  fi
   echo "Docker access enabled (mounting host Docker socket)"
 fi
 
