@@ -39,12 +39,6 @@ if [ -n "$BRANCH_NAME" ]; then
     exit 1
   fi
 
-  # Add .worktrees/ to .git/info/exclude if not already there (local-only, no repo changes)
-  EXCLUDE_FILE="$(git rev-parse --git-dir)/info/exclude"
-  if ! grep -qx '.worktrees/' "$EXCLUDE_FILE" 2>/dev/null; then
-    echo '.worktrees/' >> "$EXCLUDE_FILE"
-  fi
-
   WORKTREE_PATH="$WORKTREE_DIR/$BRANCH_NAME"
 
   if [ -d "$WORKTREE_PATH" ]; then
@@ -70,6 +64,16 @@ if [ -n "$BRANCH_NAME" ]; then
 
   CONTAINER_WORKDIR="/workspace/$WORKTREE_PATH"
   echo "Working on branch '$BRANCH_NAME' in worktree at $WORKTREE_PATH/"
+fi
+
+# --- Add local-only git excludes (no repo changes) ---
+if git rev-parse --git-dir > /dev/null 2>&1; then
+  EXCLUDE_FILE="$(git rev-parse --git-dir)/info/exclude"
+  for PATTERN in '.worktrees/' 'target-container/'; do
+    if ! grep -qx "$PATTERN" "$EXCLUDE_FILE" 2>/dev/null; then
+      echo "$PATTERN" >> "$EXCLUDE_FILE"
+    fi
+  done
 fi
 
 # --- Container name ---

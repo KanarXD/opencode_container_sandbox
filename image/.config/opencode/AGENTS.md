@@ -36,3 +36,8 @@
 - The container includes Xvfb, Mesa Vulkan (lavapipe), xdotool, and ImageMagick for running and interacting with desktop GUI applications headlessly.
 - When working with desktop GUI applications, use the `desktop-app-interaction` skill for detailed instructions on launching apps, taking screenshots, and sending mouse/keyboard input.
 
+## Rust / Cargo
+- `CARGO_TARGET_DIR` is set to `target-container` in the container environment. This keeps container builds in `target-container/` instead of the default `target/`, preventing Cargo fingerprint conflicts between host and container (different `rustc` paths/hashes cause mutual cache invalidation).
+- Do NOT override or unset `CARGO_TARGET_DIR`. Build artifacts will appear in `target-container/` relative to the project root.
+- The `target-container/` directory is automatically added to `.git/info/exclude` by the launcher script, so it won't show up as untracked.
+

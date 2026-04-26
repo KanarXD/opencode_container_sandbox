@@ -92,6 +92,7 @@ WORKDIR /home/opencode
 # Install Rust toolchain and cargo tools
 ARG RUST_VERSION
 ENV PATH="/home/opencode/.cargo/bin:${PATH}"
+ENV CARGO_TARGET_DIR=target-container
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} && \
     rustup target add wasm32-unknown-unknown && \
     cargo install cargo-binstall && \

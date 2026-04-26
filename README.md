@@ -149,6 +149,17 @@ pre-installed in the image:
 - ALSA audio (`libasound2-dev`)
 - udev input (`libudev-dev`)
 
+## Cargo Target Directory
+
+The Docker image sets `CARGO_TARGET_DIR=target-container` so that Cargo builds inside the container use
+`target-container/` instead of the default `target/`. This prevents Cargo fingerprint conflicts between host and
+container — different `rustc` binary paths/hashes cause mutual cache invalidation when sharing the same target
+directory.
+
+The launcher script automatically adds `target-container/` to `.git/info/exclude` (local-only, no repo changes) so
+it doesn't appear as untracked. Multiple containers from the same image can safely share `target-container/` since
+they use the same `rustc` binary.
+
 ## Credentials
 
 The sandbox supports read-only access to private repositories via tokens. Credentials are stored on your host at
