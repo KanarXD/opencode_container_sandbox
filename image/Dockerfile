@@ -2,6 +2,17 @@ ARG DEBIAN_VERSION
 
 FROM debian:${DEBIAN_VERSION}
 
+# Create non-root user and home directories (this rarely changes, so cache it early)
+ARG GROUP_ID=1000
+ARG USER_ID
+RUN groupadd -g ${GROUP_ID} opencode && \
+    useradd -u ${USER_ID} -g opencode -m opencode && \
+    mkdir -p /home/opencode/.local/share/opencode \
+             /home/opencode/.agents \
+             /home/opencode/.gradle \
+             /home/opencode/.azure && \
+    chown -R opencode:opencode /home/opencode
+
 ARG JAVA_VERSION
 ARG TERRAFORM_VERSION
 ARG GRADLE_VERSION
@@ -74,34 +85,6 @@ ENV GRADLE_HOME=/opt/gradle-${GRADLE_VERSION}
 ENV JAVA_TOOL_OPTIONS="-Xmx2g"
 ENV GRADLE_OPTS="-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.welcome=never -Dorg.gradle.jvmargs=-Xmx2g"
 
-# Install all npm global packages in a single layer and clean the cache once
-ARG OPENCODE_VERSION
-ARG ANGULAR_CLI_VERSION
-ARG PLAYWRIGHT_CLI_VERSION
-RUN npm install -g \
-      opencode-ai@${OPENCODE_VERSION} \
-      @angular/cli@${ANGULAR_CLI_VERSION} \
-      @playwright/cli@${PLAYWRIGHT_CLI_VERSION} && \
-    npm cache clean --force
-
-# Playwright CLI configuration for headless Docker environment
-ENV PLAYWRIGHT_MCP_HEADLESS=true
-ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
-ENV PLAYWRIGHT_MCP_BROWSER=chromium
-ENV PLAYWRIGHT_MCP_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp
-
-# Create non-root user, home directories, and install Playwright skill files
-ARG GROUP_ID=1000
-ARG USER_ID
-RUN groupadd -g ${GROUP_ID} opencode && \
-    useradd -u ${USER_ID} -g opencode -m opencode && \
-    mkdir -p /home/opencode/.local/share/opencode \
-             /home/opencode/.agents \
-             /home/opencode/.gradle \
-             /home/opencode/.azure && \
-    chown -R opencode:opencode /home/opencode
-
 USER opencode
 
 WORKDIR /home/opencode
@@ -114,6 +97,25 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
     cargo install cargo-binstall && \
     cargo binstall wasm-bindgen-cli wasm-opt jwt-cli --no-confirm && \
     rm -rf /home/opencode/.cargo/registry /home/opencode/.cargo/git
+
+# Install npm global packages (after Rust so frequent opencode updates don't invalidate the Rust layer cache)
+USER root
+ENV PLAYWRIGHT_MCP_HEADLESS=true
+ENV PLAYWRIGHT_MCP_NO_SANDBOX=true
+ENV PLAYWRIGHT_MCP_BROWSER=chromium
+ENV PLAYWRIGHT_MCP_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp
+ARG OPENCODE_VERSION
+ARG ANGULAR_CLI_VERSION
+ARG PLAYWRIGHT_CLI_VERSION
+
+RUN npm install -g \
+      @angular/cli@${ANGULAR_CLI_VERSION} \
+      @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
+      opencode-ai@${OPENCODE_VERSION} && \
+    npm cache clean --force
+
+USER opencode
 
 # Use mold linker for faster Rust linking
 COPY --chown=${USER_ID}:${GROUP_ID} .cargo/config.toml /home/opencode/.cargo/config.toml
