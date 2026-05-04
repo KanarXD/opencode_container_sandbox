@@ -72,6 +72,33 @@ The `-d` flag can be combined with other flags:
 opencode_sandbox -d -n my-network my-feature
 ```
 
+### mount additional directories into the container
+
+Use the `-v` flag to mount a host directory into the container at
+`/volumes/<basename>`. This is useful when the sandbox needs access to files
+outside the current repository (e.g., shared libraries, configuration, or other
+projects).
+
+```bash
+opencode_sandbox -v ./some/path/app
+```
+
+This resolves the path to an absolute path on the host and mounts it at
+`/volumes/app` inside the container. The flag is repeatable:
+
+```bash
+opencode_sandbox -v /opt/shared-libs -v ../other-project
+```
+
+If multiple paths share the same basename, a numeric suffix is appended
+automatically (e.g., `/volumes/app`, `/volumes/app-2`).
+
+The `-v` flag can be combined with other flags:
+
+```bash
+opencode_sandbox -v ./libs -d -n my-network my-feature
+```
+
 ### run the sandbox on a separate branch (git worktree)
 
 Pass a branch name as an argument to automatically create a
