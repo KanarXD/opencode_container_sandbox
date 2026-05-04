@@ -67,9 +67,9 @@ docker build \
 ### Run the sandbox
 
 ```bash
-opencode_sandbox [-n network] [-d] [-a] [branch]
+opencode_sandbox [-n network] [-d] [-a] [-v path]... [branch]
 # or directly:
-bash bin/opencode_sandbox.sh [-n network] [-d] [-a] [branch]
+bash bin/opencode_sandbox.sh [-n network] [-d] [-a] [-v path]... [branch]
 ```
 
 ### Run the sandbox on a specific Docker network
@@ -121,6 +121,29 @@ The `-a` flag can be combined with `-d`, `-n`, and a branch name:
 
 ```bash
 opencode_sandbox -a -n my-network my-feature
+```
+
+### Mount additional host directories into the container
+
+```bash
+opencode_sandbox -v ./some/path/app
+```
+
+This resolves `./some/path/app` to its absolute path on the host and mounts it
+at `/volumes/app` inside the container (using the basename of the path). The
+flag is repeatable — use multiple `-v` flags to mount several directories:
+
+```bash
+opencode_sandbox -v /opt/shared-libs -v ../other-project
+```
+
+If multiple paths share the same basename, a numeric suffix is appended
+automatically (e.g., `/volumes/app`, `/volumes/app-2`).
+
+The `-v` flag can be combined with `-d`, `-a`, `-n`, and a branch name:
+
+```bash
+opencode_sandbox -v ./libs -d -a -n my-network my-feature
 ```
 
 ### Run the sandbox on a separate branch (git worktree)

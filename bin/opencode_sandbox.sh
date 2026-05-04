@@ -3,25 +3,43 @@
 NETWORK_NAME=""
 DOCKER_ENABLED=""
 AZURE_ENABLED=""
+VOLUME_MOUNTS=""
 
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
-  echo "Usage: $0 [-n network] [-d] [-a] [branch]"
+  echo "Usage: $0 [-n network] [-d] [-a] [-v path]... [branch]"
   echo ""
   echo "Options:"
   echo "  -n NETWORK   Attach container to a Docker network"
   echo "  -d           Mount host Docker socket into container"
   echo "  -a           Mount Azure CLI credentials into container"
+  echo "  -v PATH      Mount a host directory into the container at its absolute path (repeatable)"
   echo "  branch       Create/reuse a git worktree for the given branch"
   exit 0
 fi
 
-while getopts "n:dah" OPT; do
+while getopts "n:dav:h" OPT; do
   case "$OPT" in
     n) NETWORK_NAME="$OPTARG" ;;
     d) DOCKER_ENABLED="1" ;;
     a) AZURE_ENABLED="1" ;;
+    v)
+      RESOLVED_PATH="$(realpath "$OPTARG" 2>/dev/null)"
+      if [ -z "$RESOLVED_PATH" ] || [ ! -d "$RESOLVED_PATH" ]; then
+        echo "Error: Volume path '$OPTARG' does not exist or is not a directory"
+        exit 1
+      fi
+      BASENAME="$(basename "$RESOLVED_PATH")"
+      MOUNT_NAME="$BASENAME"
+      SUFFIX=2
+      while echo "$VOLUME_MOUNTS" | grep -q ":/volumes/$MOUNT_NAME \\|:/volumes/$MOUNT_NAME$"; do
+        MOUNT_NAME="${BASENAME}-${SUFFIX}"
+        SUFFIX=$((SUFFIX + 1))
+      done
+      VOLUME_MOUNTS="$VOLUME_MOUNTS -v $RESOLVED_PATH:/volumes/$MOUNT_NAME"
+      echo "Volume mount: $RESOLVED_PATH -> /volumes/$MOUNT_NAME"
+      ;;
     h) "$0" --help; exit 0 ;;
-    *) echo "Usage: $0 [-n network] [-d] [-a] [branch]"; exit 1 ;;
+    *) echo "Usage: $0 [-n network] [-d] [-a] [-v path]... [branch]"; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -189,4 +207,5 @@ docker run -it --rm --name "$CONTAINER_NAME" \
   -v "$(pwd):/workspace:delegated" \
   -w "$CONTAINER_WORKDIR" \
   $CREDENTIAL_MOUNTS \
+  $VOLUME_MOUNTS \
   opencode-agent:latest
