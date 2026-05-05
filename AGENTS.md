@@ -94,9 +94,8 @@ bash bin/opencode_sandbox.sh -d
 
 This mounts the host's Docker socket (`/var/run/docker.sock`) into the container
 and grants the container user access to the socket's group. The agent can run
-Docker commands. Read-only commands (`docker ps`, `docker images`, `docker logs`,
-`docker inspect`, etc.) are auto-allowed; all other Docker commands require user
-approval before execution.
+Docker commands. All Docker commands are allowed except `docker login` and
+`docker logout`, which require user approval.
 
 The `-d` flag can be combined with `-n`, `-a`, and a branch name:
 
@@ -272,10 +271,9 @@ No linting or formatting tools are configured. If adding shell linting, use
 - The OpenCode config (`image/.config/opencode/opencode.json`) explicitly
   denies `git push*` and destructive Azure CLI commands (`az * create`,
   `az * delete`, `az login`, etc.) to prevent accidental pushes and
-  infrastructure changes from the sandbox. Docker commands are gated:
-  read-only commands (`docker ps`, `docker images`, `docker logs`,
-  `docker inspect`, etc.) are auto-allowed; all other Docker commands
-  require user approval.
+  infrastructure changes from the sandbox. All Docker commands are allowed
+  when the `-d` flag is used, except `docker login` and `docker logout`
+  which require user approval.
 
 ### Configuration (opencode.json)
 
@@ -284,10 +282,9 @@ The runtime config lives at `image/.config/opencode/opencode.json`. Key settings
 - Model: `github-copilot/claude-opus-4.6`
 - Permissions: all tools allowed (`"*": "allow"`) except `git push*` and
   destructive Azure CLI commands (`az * create/delete/update/start/stop/restart`,
-  `az * set-policy`, `az login`, `az logout`) in bash (denied). Docker commands
-  are gated: read-only commands (`docker ps`, `docker images`, `docker logs`,
-  `docker inspect`, etc.) are auto-allowed; all other Docker commands require
-  user approval before execution
+  `az * set-policy`, `az login`, `az logout`) in bash (denied). All Docker
+  commands are allowed when the `-d` flag is used, except `docker login`
+  and `docker logout` which require user approval.
 - Sharing: disabled
 
 ## Key Files to Know

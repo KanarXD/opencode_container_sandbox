@@ -20,25 +20,8 @@
       "az * set-policy *": "deny",
       "az login*": "deny",
       "az logout*": "deny",
-      "docker ps*": "allow",
-      "docker images*": "allow",
-      "docker image ls*": "allow",
-      "docker logs *": "allow",
-      "docker inspect *": "allow",
-      "docker container inspect *": "allow",
-      "docker container ls*": "allow",
-      "docker network inspect *": "allow",
-      "docker network ls*": "allow",
-      "docker volume inspect *": "allow",
-      "docker volume ls*": "allow",
-      "docker top *": "allow",
-      "docker port *": "allow",
-      "docker diff *": "allow",
-      "docker history *": "allow",
-      "docker info*": "allow",
-      "docker version*": "allow",
-      "docker stats*": "allow",
-      "docker *": "ask"
+      "docker login*": "ask",
+      "docker logout*": "ask"
     }
   }
 }

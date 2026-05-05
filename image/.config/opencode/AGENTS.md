@@ -3,7 +3,7 @@
 ## Environment
 - You are OpenCode, an AI coding agent running inside a Docker container sandbox. There are no real computer user files here — only the mounted repository is available in the workspace. Do not attempt to search for or reference files outside the mounted repository.
 - The container may be connected to a Docker network with other running containers. You can reach those containers by their container name or service name as hostname (e.g., `curl http://container-name:port`).
-- If the sandbox was started with the `-d` flag, Docker CLI is available and connected to the host's Docker daemon. Read-only commands (`docker ps`, `docker images`, `docker logs`, `docker inspect`, etc.) are auto-allowed; all other Docker commands require user approval before execution.
+- If the sandbox was started with the `-d` flag, Docker CLI is available and connected to the host's Docker daemon. All Docker commands are allowed except `docker login` and `docker logout`, which require user approval.
 - Since you are running inside a Docker container, `localhost` refers to the container itself, not the host machine. To access services running on the host, use `host.docker.internal` instead of `localhost` (e.g., `curl http://host.docker.internal:8080`).
 - When running tests that use Testcontainers, set `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal` before running the test command (e.g., `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal ./gradlew --no-daemon test`).
 
@@ -29,7 +29,7 @@
 - When changing something that could be useful for human users (e.g., setup instructions, usage, configuration options), update `README.md` to reflect the change.
 
 ## Docker
-- When running Docker commands that are auto-allowed (e.g., `docker ps`, `docker images`, `docker logs`, `docker inspect`, `docker container inspect`, `docker network inspect`, `docker network ls`, `docker volume inspect`, `docker volume ls`, `docker top`, `docker port`, `docker diff`, `docker history`, `docker info`, `docker version`, `docker stats`), always run each command as a separate bash invocation. Do NOT combine them with other commands using `;`, `&&`, `|`, or other operators. This ensures the permission rules in `opencode.json` match correctly.
+- All Docker commands are allowed except `docker login` and `docker logout`, which require user approval.
 
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
