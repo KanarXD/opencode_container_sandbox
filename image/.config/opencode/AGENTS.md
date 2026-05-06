@@ -33,6 +33,7 @@
 
 ## Git
 - After creating any new files, always run `git add` on those files to stage them for the next commit. Do not leave newly created files untracked.
+- Commit messages must follow the format: `<taskId> - <short one sentence description>`. The taskId is extracted from the current branch name, which follows the pattern `feature/<taskId>-<optional description>`. The taskId is always a single number. For example, on branch `feature/4523-add-login`, the commit message should be: `4523 - Add user login endpoint`. If the branch does not match this pattern, use a plain descriptive message instead.
 
 ## Desktop Applications (Bevy, GUI apps)
 - The container includes Xvfb, Mesa Vulkan (lavapipe), xdotool, and ImageMagick for running and interacting with desktop GUI applications headlessly.

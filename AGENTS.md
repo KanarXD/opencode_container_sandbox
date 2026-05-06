@@ -373,4 +373,9 @@ relevant variable and rebuild with `bash setup.sh`. Available variables:
 - No CI/CD pipeline is configured.
 - No branch protection or PR rules.
 - The `.gitignore` excludes `.idea/` (JetBrains IDE files).
-- Commit messages should be clear and descriptive of what changed and why.
+- Commit messages must follow the format: `<taskId> - <short one sentence description>`.
+  The taskId is extracted from the current branch name, which follows the pattern
+  `feature/<taskId>-<optional description>`. The taskId is always a single number.
+  For example, on branch `feature/4523-add-login`, the commit message should be:
+  `4523 - Add user login endpoint`. If the branch does not match this pattern,
+  use a plain descriptive message instead.
