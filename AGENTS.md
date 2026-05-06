@@ -378,4 +378,4 @@ relevant variable and rebuild with `bash setup.sh`. Available variables:
   `feature/<taskId>-<optional description>`. The taskId is always a single number.
   For example, on branch `feature/4523-add-login`, the commit message should be:
   `4523 - Add user login endpoint`. If the branch does not match this pattern,
-  use a plain descriptive message instead.
+  use a plain one sentence description instead.
