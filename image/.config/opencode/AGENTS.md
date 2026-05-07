@@ -6,6 +6,7 @@
 - If the sandbox was started with the `-d` flag, Docker CLI is available and connected to the host's Docker daemon. All Docker commands are allowed except `docker login` and `docker logout`, which require user approval.
 - Since you are running inside a Docker container, `localhost` refers to the container itself, not the host machine. To access services running on the host, use `host.docker.internal` instead of `localhost` (e.g., `curl http://host.docker.internal:8080`).
 - When running tests that use Testcontainers, set `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal` before running the test command (e.g., `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal ./gradlew --no-daemon test`).
+- Additional host directories may be mounted under `/volumes/` (e.g., `/volumes/app`, `/volumes/libs`). Check this directory if the user references external sources, libraries, or sibling projects.
 
 ## Testing                                                                          
 - When adding new code, propose adding tests for it if the project has a test framework set up.
